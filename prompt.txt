@@ -1,0 +1,191 @@
+DSA VISUALIZER TUI — FEATURE AND BEHAVIOR SPECIFICATION (UPDATED)
+
+---
+
+1. **OVERALL GOAL**
+
+The application is a terminal-based interactive visualizer for data structures
+and algorithms aligned with the Primagen course. It prioritizes immediate
+feedback, deterministic step execution, and clear visibility into algorithm
+state. Visualizations are **always available** as reference; user
+implementation integration is not required.
+
+---
+
+2. **APPLICATION FLOW**
+
+On launch, keep home screen as is but add:
+
+* Home screen presents all available algorithms, grouped by category.
+* Selecting an algorithm opens its visualizer with a pre-generated dataset.
+* No user code is required to see or interact with a visualization.
+
+---
+
+3. **HOME SCREEN**
+
+Displays a categorized list of algorithms:
+
+* Arrays (sorting, searching)
+* Linked Lists
+* Trees
+* Graphs
+
+Behavior:
+
+* Arrow keys / vim motions to navigate
+* Enter → opens visualizer
+* All algorithms are selectable; unavailable entries are not needed as all
+  visualizations are reference implementations
+
+---
+
+4. **VISUALIZER SCREEN LAYOUT**
+
+Three main sections:
+
+A. **Visualization Pane (top)**
+
+keep as is but change:
+* Structural boundaries (sorted region, search window, etc.) should be shown in
+  the same section as the visualizer underneath it. Seach term should also be
+  included here not at the top.
+
+B. **State Panel (separate section under code)**
+
+* Displays algorithm-specific variables and their current values
+* Step counter
+* Execution state (running, paused, finished)
+
+C. **Trace Panel (under states panel)**
+
+* Chronological log of operations
+* Example: “compare(3, 5)”, “swap(2, 4)”, “mid = 7”
+* Scrollable, toggleable
+
+D. **Code Highlight Panel (keep as is but make it collapsable)**
+
+* Shows hardcoded reference implementation of the algorithm
+* Highlights the line corresponding to the current step in the visualization
+* Updates in sync with execution
+
+---
+
+5. **DEFAULT DATASET BEHAVIOR**
+
+* Automatically generated dataset on visualizer entry
+* Default target selected automatically if applicable
+* Immediately visible in visualization pane
+
+---
+
+6. **DATASET CONFIGURATION**
+
+Overlay accessible via keybinding (c):
+
+Primary presets:
+
+* **Size:** small / medium / large
+* **Distribution:** random / nearly sorted / reversed / few unique / clustered
+* **Target:** automatic / select from dataset / manual input
+
+Behavior:
+
+* Dataset preview updates on preset change (debounced or applied explicitly)
+* Target visually highlighted
+
+Advanced configuration (optional):
+
+* Min / max value
+* Exact number of elements
+* Random seed for reproducibility
+
+---
+
+7. **TEST CASE SYSTEM**
+
+* Predefined test cases labeled: edge case, worst case, typical case
+* Each test case shows description and expected result
+* Loading a test case replaces the current dataset
+* Execution can be stepped through to observe algorithm behavior
+* Should show to the user somewhere "Case:..."
+
+---
+
+8. **EXECUTION MODEL**
+
+Controls:
+
+* Step forward (`n`) → advances one atomic operation
+* Step backward (`b`)
+* Run / pause (`space`)
+* Reset (`r`) → returns to initial state
+* Speed control (`+/-`)
+
+**Step semantics:**
+
+* Each step represents one atomic operation in the reference implementation:
+
+  * Sorting: compare or swap
+  * Binary search: compute mid, compare, update bounds
+  * Graphs: node visit, edge relaxation
+
+Behavior:
+
+* Each step updates visualization, state panel, trace, and code highlight
+
+---
+
+9. **VISUALIZATION RULES**
+
+* Active elements highlighted clearly
+* Compared elements visually distinct from selected elements
+* Structural regions indicated (sorted portion, search window)
+* Clarity prioritized over density
+
+---
+
+10. **STATE VISIBILITY**
+
+* Always shows key algorithm variables and auxiliary structures: stack, queue,
+  recursion depth, indices
+* Updated on each step
+
+---
+
+11. **TRACE SYSTEM**
+
+* Step-by-step log of operations in human-readable form
+* Scrollable and toggleable
+* Synchronized with execution
+
+---
+
+12. **CODE HIGHLIGHT FEATURE**
+
+* Displays reference pseudocode or hardcoded solution
+* Highlights current line corresponding to active step
+* Helps users correlate algorithm code with visualization and trace
+
+---
+
+13. **CONSTRAINTS AND VALIDATION**
+
+* Dataset size limited based on terminal dimensions
+* Invalid configurations prevented before execution
+* Inline messages for errors
+
+---
+
+14. **KEYBINDINGS**
+
+* Navigation: arrow keys or `h/j/k/l`
+* Step forward: `n`
+* Step backward: `b`
+* Run / pause: `space`
+* Reset: `r`
+* Open configuration: `c`
+* Toggle trace panel: `t`
+* Toggle variable inspection: `v`
+* Quit: `q`
+
