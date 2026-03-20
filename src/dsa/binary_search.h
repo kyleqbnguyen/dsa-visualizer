@@ -5,7 +5,7 @@
 namespace dsa {
 
 // Return index of target from sorted data; return -1 when not found.
-auto binary_search(const std::vector<int> &data, int target) -> int {
+inline auto binary_search(const std::vector<int> &data, int target) -> int {
   // TODO
   (void)data;
   (void)target;
