@@ -9,7 +9,7 @@ Guidance for coding agents working in `dsa-visualizer`.
 - Main executable: `dsa-viz`
 - Test executables:
   - `dsa_tests` (default visualizer tests)
-  - `dsa_learner_tests` (optional learner tests)
+  - `dsa_learner_tests` (manual learner tests)
 - Key directories:
   - `src/dsa/` algorithms (`INTERFACE` target)
   - `src/viz/` visualization/controller (`INTERFACE` target)
@@ -41,15 +41,6 @@ cmake --build build
 ```bash
 cmake --build build --target dsa-viz
 cmake --build build --target dsa_tests
-```
-
-### Configure with learner tests enabled (optional)
-```bash
-cmake -S . -B build -DDSA_ENABLE_LEARNER_TESTS=ON
-```
-
-### Build learner test target (optional)
-```bash
 cmake --build build --target dsa_learner_tests
 ```
 
@@ -73,9 +64,14 @@ ctest --test-dir build -R '^VizRecordings\.BubbleSortRecordingEndsSorted$' --out
 ctest --test-dir build -R '^VizRecordings\.' --output-on-failure
 ```
 
-### Run learner tests explicitly (when enabled)
+### Run learner tests explicitly (manual binary)
 ```bash
-ctest --test-dir build -R '^LinearSearch\.|^BinarySearch\.|^BubbleSort\.' --output-on-failure
+./build/tests/dsa_learner_tests
+```
+
+### Run one learner suite
+```bash
+./build/tests/dsa_learner_tests --gtest_filter='LinearSearch.*'
 ```
 
 ### Run single test via GoogleTest filter (alternative)
@@ -86,6 +82,11 @@ ctest --test-dir build -R '^LinearSearch\.|^BinarySearch\.|^BubbleSort\.' --outp
 ### Run single learner test via GoogleTest filter (optional)
 ```bash
 ./build/tests/dsa_learner_tests --gtest_filter=BinarySearch.FindsFirstElement
+```
+
+### List learner tests
+```bash
+./build/tests/dsa_learner_tests --gtest_list_tests
 ```
 
 ### List discovered tests
@@ -167,7 +168,7 @@ git ls-files '*.h' '*.cpp' | xargs clang-format --dry-run --Werror
   - GoogleTest `v1.15.2`
 - `dsa` and `viz` are `INTERFACE` libraries exporting include dirs
 - Default tests are auto-registered by `gtest_discover_tests(dsa_tests)`
-- Learner tests are conditionally registered by `gtest_discover_tests(dsa_learner_tests)`
+- Learner tests are a separate executable and are not registered in `ctest`
 
 ## Agent Workflow
 - Before editing, inspect related headers/tests to match local conventions
