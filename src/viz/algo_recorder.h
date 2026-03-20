@@ -1,14 +1,11 @@
 #pragma once
 
 #include <algorithm>
-#include <span>
+#include <cstddef>
 #include <string>
 #include <vector>
 
-#include "binary_search.h"
-#include "bubble_sort.h"
 #include "code_panel.h"
-#include "linear_search.h"
 #include "snapshot.h"
 
 namespace viz {
@@ -30,51 +27,49 @@ inline auto record_linear_search(const std::vector<int> &input, int target)
     rec.steps.push_back(std::move(init));
   }
 
-  auto data_copy = input;
   bool was_found = false;
   int found_at = -1;
 
-  dsa::linear_search<int>(
-      std::span<const int>(data_copy), target,
-      [&](std::span<const int>, std::size_t idx, const int & /*tgt*/,
-          bool found) {
-        StepSnapshot snap;
-        snap.data = data_copy;
-        snap.highlight_a = static_cast<int>(idx);
-        snap.highlight_b = -1;
+  for (std::size_t idx = 0; idx < input.size(); ++idx) {
+    bool found = input[idx] == target;
 
-        snap.variables = {
-            {"i", std::to_string(idx)},
-            {"data[i]", std::to_string(data_copy[idx])},
-            {"target", std::to_string(target)},
-        };
+    StepSnapshot snap;
+    snap.data = input;
+    snap.highlight_a = static_cast<int>(idx);
 
-        if (found) {
-          snap.found_index = static_cast<int>(idx);
-          snap.current_line = linear_search_line(true, false);
-          snap.status_text = "Found " + std::to_string(target) + " at index " +
-                             std::to_string(idx) + "!";
-          snap.trace_entry = "compare(data[" + std::to_string(idx) +
-                             "]=" + std::to_string(data_copy[idx]) +
-                             ", target=" + std::to_string(target) +
-                             ") -> MATCH";
-          was_found = true;
-          found_at = static_cast<int>(idx);
-        } else {
-          snap.current_line = linear_search_line(false, false);
-          snap.status_text = "Checking index " + std::to_string(idx) +
-                             " -> value=" + std::to_string(data_copy[idx]);
-          snap.trace_entry = "compare(data[" + std::to_string(idx) +
-                             "]=" + std::to_string(data_copy[idx]) +
-                             ", target=" + std::to_string(target) + ") -> skip";
-        }
+    snap.variables = {
+        {"i", std::to_string(idx)},
+        {"data[i]", std::to_string(input[idx])},
+        {"target", std::to_string(target)},
+    };
 
-        rec.steps.push_back(std::move(snap));
-      });
+    if (found) {
+      snap.found_index = static_cast<int>(idx);
+      snap.current_line = linear_search_line(true, false);
+      snap.status_text = "Found " + std::to_string(target) + " at index " +
+                         std::to_string(idx) + "!";
+      snap.trace_entry = "compare(data[" + std::to_string(idx) +
+                         "]=" + std::to_string(input[idx]) +
+                         ", target=" + std::to_string(target) +
+                         ") -> MATCH";
+      was_found = true;
+      found_at = static_cast<int>(idx);
+      rec.steps.push_back(std::move(snap));
+      break;
+    }
+
+    snap.current_line = linear_search_line(false, false);
+    snap.status_text = "Checking index " + std::to_string(idx) +
+                       " -> value=" + std::to_string(input[idx]);
+    snap.trace_entry = "compare(data[" + std::to_string(idx) +
+                       "]=" + std::to_string(input[idx]) +
+                       ", target=" + std::to_string(target) + ") -> skip";
+    rec.steps.push_back(std::move(snap));
+  }
 
   {
     StepSnapshot final_snap;
-    final_snap.data = data_copy;
+    final_snap.data = input;
     final_snap.current_line = linear_search_line(was_found, true);
     if (was_found) {
       final_snap.found_index = found_at;
@@ -112,8 +107,7 @@ inline auto record_binary_search(std::vector<int> input, int target)
     init.status_text =
         "Target: " + std::to_string(target) + "  |  Ready to start.";
     init.current_line = 1;
-    init.trace_entry = "begin binary_search(target=" +
-                       std::to_string(target) +
+    init.trace_entry = "begin binary_search(target=" + std::to_string(target) +
                        ", n=" + std::to_string(input.size()) + ")";
     init.variables = {
         {"low", "0"},
@@ -126,61 +120,64 @@ inline auto record_binary_search(std::vector<int> input, int target)
   bool was_found = false;
   int found_at = -1;
 
-  dsa::binary_search<int>(
-      std::span<const int>(input), target,
-      [&](std::span<const int>, std::size_t lo, std::size_t hi,
-          std::size_t mid, const int & /*tgt*/, bool found) {
-        bool val_lt = input[mid] < target;
+  std::size_t low = 0;
+  std::size_t high = input.size();
+  while (low < high) {
+    std::size_t mid = low + (high - low) / 2;
+    bool found = input[mid] == target;
+    bool val_lt = input[mid] < target;
 
-        StepSnapshot snap;
-        snap.data = input;
-        snap.low = static_cast<int>(lo);
-        snap.high = static_cast<int>(hi);
-        snap.highlight_a = static_cast<int>(mid);
+    StepSnapshot snap;
+    snap.data = input;
+    snap.low = static_cast<int>(low);
+    snap.high = static_cast<int>(high);
+    snap.highlight_a = static_cast<int>(mid);
 
-        snap.variables = {
-            {"low", std::to_string(lo)},
-            {"high", std::to_string(hi)},
-            {"mid", std::to_string(mid)},
-            {"data[mid]", std::to_string(input[mid])},
-            {"target", std::to_string(target)},
-        };
+    snap.variables = {
+        {"low", std::to_string(low)},
+        {"high", std::to_string(high)},
+        {"mid", std::to_string(mid)},
+        {"data[mid]", std::to_string(input[mid])},
+        {"target", std::to_string(target)},
+    };
 
-        if (found) {
-          snap.found_index = static_cast<int>(mid);
-          snap.current_line = binary_search_line(true, false, false);
-          snap.status_text = "Found " + std::to_string(target) + " at index " +
-                             std::to_string(mid) + "!";
-          snap.trace_entry = "mid=" + std::to_string(mid) + "  data[mid]=" +
-                             std::to_string(input[mid]) + " == target -> FOUND";
-          was_found = true;
-          found_at = static_cast<int>(mid);
-        } else {
-          snap.current_line =
-              binary_search_line(false, val_lt, false);
-          snap.status_text = "Window [" + std::to_string(lo) + ", " +
-                             std::to_string(hi) +
-                             ")  mid=" + std::to_string(mid) +
-                             "  val=" + std::to_string(input[mid]);
-          if (val_lt) {
-            snap.trace_entry = "mid=" + std::to_string(mid) + "  data[mid]=" +
-                               std::to_string(input[mid]) +
-                               " < target -> low = mid+1";
-          } else {
-            snap.trace_entry = "mid=" + std::to_string(mid) + "  data[mid]=" +
-                               std::to_string(input[mid]) +
-                               " > target -> high = mid";
-          }
-        }
+    if (found) {
+      snap.found_index = static_cast<int>(mid);
+      snap.current_line = binary_search_line(true, false, false);
+      snap.status_text = "Found " + std::to_string(target) + " at index " +
+                         std::to_string(mid) + "!";
+      snap.trace_entry = "mid=" + std::to_string(mid) + "  data[mid]=" +
+                         std::to_string(input[mid]) + " == target -> FOUND";
+      was_found = true;
+      found_at = static_cast<int>(mid);
+      rec.steps.push_back(std::move(snap));
+      break;
+    }
 
-        rec.steps.push_back(std::move(snap));
-      });
+    snap.current_line = binary_search_line(false, val_lt, false);
+    snap.status_text = "Window [" + std::to_string(low) + ", " +
+                       std::to_string(high) + ")  mid=" +
+                       std::to_string(mid) + "  val=" +
+                       std::to_string(input[mid]);
+    if (val_lt) {
+      snap.trace_entry = "mid=" + std::to_string(mid) + "  data[mid]=" +
+                         std::to_string(input[mid]) +
+                         " < target -> low = mid+1";
+      low = mid + 1;
+    } else {
+      snap.trace_entry = "mid=" + std::to_string(mid) + "  data[mid]=" +
+                         std::to_string(input[mid]) +
+                         " > target -> high = mid";
+      high = mid;
+    }
+
+    rec.steps.push_back(std::move(snap));
+  }
 
   {
     StepSnapshot final_snap;
     final_snap.data = input;
-    final_snap.current_line =
-        binary_search_line(was_found, false, true);
+    final_snap.current_line = binary_search_line(was_found, false, true);
     if (was_found) {
       final_snap.found_index = found_at;
       final_snap.status_text = "Result: found " + std::to_string(target) +
@@ -224,75 +221,78 @@ inline auto record_bubble_sort(const std::vector<int> &input)
     rec.steps.push_back(std::move(init));
   }
 
-  int pass = 0;
   int total_swaps = 0;
+  int passes = 0;
 
-  std::size_t last_a = 0;
-
-  dsa::bubble_sort<int>(
-      std::span<int>(data),
-      [&](std::span<const int> current, std::size_t a, std::size_t b,
-          bool did_swap) {
-        if (!rec.steps.empty() && a == 0 && last_a > 0) {
-          pass++;
-        }
-        last_a = a;
-
-        if (did_swap)
-          total_swaps++;
+  if (!data.empty()) {
+    for (std::size_t i = 0; i < data.size(); ++i) {
+      bool swapped = false;
+      ++passes;
+      for (std::size_t j = 0; j + 1 < data.size() - i; ++j) {
+        bool will_swap = data[j] > data[j + 1];
 
         StepSnapshot snap;
-        snap.data.assign(current.begin(), current.end());
-        snap.highlight_a = static_cast<int>(a);
-        snap.highlight_b = static_cast<int>(b);
-        snap.sorted_boundary =
-            static_cast<int>(current.size()) - pass;
+        snap.data = data;
+        snap.highlight_a = static_cast<int>(j);
+        snap.highlight_b = static_cast<int>(j + 1);
+        snap.sorted_boundary = static_cast<int>(data.size() - i);
 
         snap.variables = {
-            {"pass", std::to_string(pass + 1)},
-            {"j", std::to_string(a)},
-            {"data[j]", std::to_string(current[a])},
-            {"data[j+1]", std::to_string(current[b])},
+            {"pass", std::to_string(passes)},
+            {"j", std::to_string(j)},
+            {"data[j]", std::to_string(data[j])},
+            {"data[j+1]", std::to_string(data[j + 1])},
             {"swaps", std::to_string(total_swaps)},
         };
 
-        snap.current_line = bubble_sort_line(did_swap, false);
+        snap.current_line = bubble_sort_line(will_swap, false);
 
-        if (did_swap) {
-          snap.status_text = "Swap index " + std::to_string(a) + " (" +
-                             std::to_string(current[a]) + ") <-> " +
-                             std::to_string(b) + " (" +
-                             std::to_string(current[b]) + ")";
-          snap.trace_entry = "swap(data[" + std::to_string(a) + "]=" +
-                             std::to_string(current[a]) + ", data[" +
-                             std::to_string(b) +
-                             "]=" + std::to_string(current[b]) + ")";
+        if (will_swap) {
+          snap.status_text = "Swap index " + std::to_string(j) + " (" +
+                             std::to_string(data[j]) + ") <-> " +
+                             std::to_string(j + 1) + " (" +
+                             std::to_string(data[j + 1]) + ")";
+          snap.trace_entry = "swap(data[" + std::to_string(j) + "]=" +
+                             std::to_string(data[j]) + ", data[" +
+                             std::to_string(j + 1) +
+                             "]=" + std::to_string(data[j + 1]) + ")";
+          std::swap(data[j], data[j + 1]);
+          ++total_swaps;
+          swapped = true;
+          snap.data = data;
         } else {
-          snap.status_text = "Compare index " + std::to_string(a) + " (" +
-                             std::to_string(current[a]) + ") and " +
-                             std::to_string(b) + " (" +
-                             std::to_string(current[b]) + ") -> no swap";
-          snap.trace_entry = "compare(data[" + std::to_string(a) + "]=" +
-                             std::to_string(current[a]) + ", data[" +
-                             std::to_string(b) +
-                             "]=" + std::to_string(current[b]) + ") -> skip";
+          snap.status_text = "Compare index " + std::to_string(j) + " (" +
+                             std::to_string(data[j]) + ") and " +
+                             std::to_string(j + 1) + " (" +
+                             std::to_string(data[j + 1]) + ") -> no swap";
+          snap.trace_entry = "compare(data[" + std::to_string(j) + "]=" +
+                             std::to_string(data[j]) + ", data[" +
+                             std::to_string(j + 1) +
+                             "]=" + std::to_string(data[j + 1]) +
+                             ") -> skip";
         }
 
+        snap.variables[4].second = std::to_string(total_swaps);
         rec.steps.push_back(std::move(snap));
-      });
+      }
+      if (!swapped) {
+        break;
+      }
+    }
+  }
 
   {
     StepSnapshot final_snap;
     final_snap.data = data;
-    final_snap.sorted_boundary = 0; // everything sorted
+    final_snap.sorted_boundary = 0;
     final_snap.current_line = bubble_sort_line(false, true);
     final_snap.status_text = "Bubble Sort complete! (" +
                              std::to_string(total_swaps) + " total swaps)";
-    final_snap.trace_entry = "done — sorted in " +
-                             std::to_string(pass + 1) + " passes, " +
-                             std::to_string(total_swaps) + " swaps";
+    final_snap.trace_entry = "done - sorted in " + std::to_string(passes) +
+                             " passes, " + std::to_string(total_swaps) +
+                             " swaps";
     final_snap.variables = {
-        {"passes", std::to_string(pass + 1)},
+        {"passes", std::to_string(passes)},
         {"total_swaps", std::to_string(total_swaps)},
     };
     rec.steps.push_back(std::move(final_snap));

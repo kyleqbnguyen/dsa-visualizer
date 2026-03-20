@@ -7,7 +7,9 @@ Guidance for coding agents working in `dsa-visualizer`.
 - Test framework: GoogleTest with `gtest_discover_tests`
 - UI stack: FTXUI via `FetchContent`
 - Main executable: `dsa-viz`
-- Test executable: `dsa_tests`
+- Test executables:
+  - `dsa_tests` (default visualizer tests)
+  - `dsa_learner_tests` (optional learner tests)
 - Key directories:
   - `src/dsa/` algorithms (`INTERFACE` target)
   - `src/viz/` visualization/controller (`INTERFACE` target)
@@ -41,6 +43,16 @@ cmake --build build --target dsa-viz
 cmake --build build --target dsa_tests
 ```
 
+### Configure with learner tests enabled (optional)
+```bash
+cmake -S . -B build -DDSA_ENABLE_LEARNER_TESTS=ON
+```
+
+### Build learner test target (optional)
+```bash
+cmake --build build --target dsa_learner_tests
+```
+
 ### Run app
 ```bash
 ./build/apps/dsa-viz
@@ -53,17 +65,27 @@ ctest --test-dir build --output-on-failure
 
 ### Run a single test (preferred)
 ```bash
-ctest --test-dir build -R '^BinarySearch\.FindsFirstElement$' --output-on-failure
+ctest --test-dir build -R '^VizRecordings\.BubbleSortRecordingEndsSorted$' --output-on-failure
 ```
 
 ### Run one suite
 ```bash
-ctest --test-dir build -R '^LinearSearch\.' --output-on-failure
+ctest --test-dir build -R '^VizRecordings\.' --output-on-failure
+```
+
+### Run learner tests explicitly (when enabled)
+```bash
+ctest --test-dir build -R '^LinearSearch\.|^BinarySearch\.|^BubbleSort\.' --output-on-failure
 ```
 
 ### Run single test via GoogleTest filter (alternative)
 ```bash
-./build/tests/dsa_tests --gtest_filter=BubbleSort.ReverseSorted
+./build/tests/dsa_tests --gtest_filter=VizRecordings.BubbleSortRecordingEndsSorted
+```
+
+### Run single learner test via GoogleTest filter (optional)
+```bash
+./build/tests/dsa_learner_tests --gtest_filter=BinarySearch.FindsFirstElement
 ```
 
 ### List discovered tests
@@ -144,7 +166,8 @@ git ls-files '*.h' '*.cpp' | xargs clang-format --dry-run --Werror
   - FTXUI `v6.1.9`
   - GoogleTest `v1.15.2`
 - `dsa` and `viz` are `INTERFACE` libraries exporting include dirs
-- Tests are auto-registered by `gtest_discover_tests(dsa_tests)`
+- Default tests are auto-registered by `gtest_discover_tests(dsa_tests)`
+- Learner tests are conditionally registered by `gtest_discover_tests(dsa_learner_tests)`
 
 ## Agent Workflow
 - Before editing, inspect related headers/tests to match local conventions
