@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -294,6 +295,120 @@ inline auto record_bubble_sort(const std::vector<int> &input)
     final_snap.variables = {
         {"passes", std::to_string(passes)},
         {"total_swaps", std::to_string(total_swaps)},
+    };
+    rec.steps.push_back(std::move(final_snap));
+  }
+
+  return rec;
+}
+
+inline auto record_two_crystal_balls(const std::vector<int> &input)
+    -> AlgorithmRecording {
+  AlgorithmRecording rec;
+  rec.title = "Two Crystal Balls";
+  rec.algorithm_name = "two_crystal_balls";
+
+  if (input.empty()) {
+    StepSnapshot empty;
+    empty.data = input;
+    empty.current_line = two_crystal_balls_line(true, false, true);
+    empty.status_text = "Result: empty input (no breaking floor).";
+    empty.trace_entry = "return -1";
+    empty.variables = {
+        {"result", "-1"},
+    };
+    rec.steps.push_back(std::move(empty));
+    return rec;
+  }
+
+  std::size_t jump =
+      std::max<std::size_t>(1, static_cast<std::size_t>(std::sqrt(input.size())));
+
+  {
+    StepSnapshot init;
+    init.data = input;
+    init.current_line = 0;
+    init.status_text = "Ready to find first breaking floor.";
+    init.trace_entry =
+        "begin two_crystal_balls(n=" + std::to_string(input.size()) + ")";
+    init.variables = {
+        {"jump", std::to_string(jump)},
+        {"i", std::to_string(jump)},
+    };
+    rec.steps.push_back(std::move(init));
+  }
+
+  int found_at = -1;
+  std::size_t i = jump;
+  for (; i < input.size(); i += jump) {
+    StepSnapshot snap;
+    snap.data = input;
+    snap.highlight_a = static_cast<int>(i);
+    snap.current_line = two_crystal_balls_line(true, false, false);
+    snap.status_text = "Drop first ball at index " + std::to_string(i) +
+                       " -> value=" + std::to_string(input[i]);
+    snap.trace_entry = "jump-check breaks[" + std::to_string(i) + "]=" +
+                       std::to_string(input[i]);
+    snap.variables = {
+        {"jump", std::to_string(jump)},
+        {"i", std::to_string(i)},
+    };
+    rec.steps.push_back(std::move(snap));
+
+    if (input[i] > 0) {
+      break;
+    }
+  }
+
+  std::size_t start = (i >= jump) ? i - jump : 0;
+  std::size_t end = std::min(i, input.size() - 1);
+
+  for (std::size_t j = start; j <= end; ++j) {
+    bool found = input[j] > 0;
+
+    StepSnapshot snap;
+    snap.data = input;
+    snap.highlight_a = static_cast<int>(j);
+    snap.current_line = two_crystal_balls_line(false, found, false);
+    snap.status_text = "Linear scan index " + std::to_string(j) +
+                       " -> value=" + std::to_string(input[j]);
+    snap.trace_entry = "linear-check breaks[" + std::to_string(j) + "]=" +
+                       std::to_string(input[j]);
+    snap.variables = {
+        {"jump", std::to_string(jump)},
+        {"start", std::to_string(start)},
+        {"end", std::to_string(end)},
+        {"j", std::to_string(j)},
+    };
+
+    if (found) {
+      found_at = static_cast<int>(j);
+      snap.found_index = found_at;
+      snap.status_text = "Found first breaking index at " +
+                         std::to_string(found_at) + "!";
+      snap.trace_entry = "return " + std::to_string(found_at);
+      rec.steps.push_back(std::move(snap));
+      break;
+    }
+
+    rec.steps.push_back(std::move(snap));
+  }
+
+  {
+    StepSnapshot final_snap;
+    final_snap.data = input;
+    final_snap.current_line = two_crystal_balls_line(false, false, true);
+    if (found_at >= 0) {
+      final_snap.found_index = found_at;
+      final_snap.status_text =
+          "Result: first breaking floor at index " + std::to_string(found_at);
+      final_snap.trace_entry = "return " + std::to_string(found_at);
+    } else {
+      final_snap.status_text = "Result: no breaking floor found.";
+      final_snap.trace_entry = "return -1";
+    }
+    final_snap.variables = {
+        {"result", std::to_string(found_at)},
     };
     rec.steps.push_back(std::move(final_snap));
   }

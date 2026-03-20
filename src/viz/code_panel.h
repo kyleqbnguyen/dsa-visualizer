@@ -139,4 +139,34 @@ inline auto bubble_sort_line(bool will_swap, bool finished) -> int {
   return 2;
 }
 
+inline auto two_crystal_balls_code() -> CodePanel {
+  return {
+      .title = "two_crystal_balls.h",
+      .lines =
+          {
+              "size_t jump = sqrt(breaks.size());",
+              "size_t i = jump;",
+              "for (; i < breaks.size(); i += jump) {",
+              "    if (breaks[i]) break;",
+              "}",
+              "size_t start = i - jump;",
+              "for (size_t j = start; j <= i && j < breaks.size(); ++j) {",
+              "    if (breaks[j]) return j;",
+              "}",
+              "return -1;",
+          },
+  };
+}
+
+inline auto two_crystal_balls_line(bool jump_phase, bool found,
+                                   bool finished) -> int {
+  if (finished)
+    return 9;
+  if (found)
+    return 7;
+  if (jump_phase)
+    return 3;
+  return 6;
+}
+
 } // namespace viz

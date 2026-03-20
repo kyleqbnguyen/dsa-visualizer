@@ -129,6 +129,47 @@ inline auto bubble_sort_test_cases() -> std::vector<TestCase> {
   };
 }
 
+inline auto two_crystal_balls_test_cases() -> std::vector<TestCase> {
+  return {
+      {
+          .label = "Typical: Midpoint break",
+          .description = "Floors are safe, then start breaking in the middle",
+          .data = {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
+          .target = 0,
+      },
+      {
+          .label = "Edge: Immediate break",
+          .description = "First floor already breaks",
+          .data = {1, 1, 1, 1, 1, 1, 1, 1},
+          .target = 0,
+      },
+      {
+          .label = "Edge: Last floor break",
+          .description = "Only the final floor breaks",
+          .data = {0, 0, 0, 0, 0, 0, 0, 1},
+          .target = 0,
+      },
+      {
+          .label = "Worst: Never breaks",
+          .description = "No floor causes a break",
+          .data = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+          .target = 0,
+      },
+      {
+          .label = "Edge: Single element safe",
+          .description = "One floor and it is safe",
+          .data = {0},
+          .target = 0,
+      },
+      {
+          .label = "Edge: Single element breaks",
+          .description = "One floor and it breaks",
+          .data = {1},
+          .target = 0,
+      },
+  };
+}
+
 inline auto get_test_cases(const std::string &algo_name)
     -> std::vector<TestCase> {
   if (algo_name == "linear_search")
@@ -137,6 +178,8 @@ inline auto get_test_cases(const std::string &algo_name)
     return binary_search_test_cases();
   if (algo_name == "bubble_sort")
     return bubble_sort_test_cases();
+  if (algo_name == "two_crystal_balls")
+    return two_crystal_balls_test_cases();
   return {};
 }
 

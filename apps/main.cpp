@@ -21,6 +21,7 @@ struct MenuEntry {
 constexpr int kLinearSearch = 0;
 constexpr int kBinarySearch = 1;
 constexpr int kBubbleSort = 2;
+constexpr int kTwoCrystalBalls = 3;
 
 auto build_menu_entries() -> std::vector<MenuEntry> {
   return {
@@ -28,6 +29,9 @@ auto build_menu_entries() -> std::vector<MenuEntry> {
       {.label = "  Linear Search", .is_category = false, .algo_id = kLinearSearch},
       {.label = "  Binary Search", .is_category = false, .algo_id = kBinarySearch},
       {.label = "  Bubble Sort", .is_category = false, .algo_id = kBubbleSort},
+      {.label = "  Two Crystal Balls",
+       .is_category = false,
+       .algo_id = kTwoCrystalBalls},
       {.label = "Linked Lists", .is_category = true},
       {.label = "Trees", .is_category = true},
       {.label = "Graphs", .is_category = true},
@@ -148,6 +152,10 @@ void run_selected(int algo_id) {
   auto data = viz::generators::random_array(kDefaultSize);
   int target = 0;
 
+  if (algo_id == kTwoCrystalBalls) {
+    data = viz::generators::two_crystal_balls_array(kDefaultSize);
+  }
+
   bool needs_target = (algo_id == kLinearSearch || algo_id == kBinarySearch);
   if (needs_target) {
     target = viz::generators::pick_target(data);
@@ -162,6 +170,9 @@ void run_selected(int algo_id) {
     break;
   case kBubbleSort:
     viz::run_bubble_sort_viz(data);
+    break;
+  case kTwoCrystalBalls:
+    viz::run_two_crystal_balls_viz(data);
     break;
   default:
     break;

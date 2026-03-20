@@ -33,3 +33,12 @@ TEST(VizRecordings, BubbleSortRecordingEndsSorted) {
       std::is_sorted(rec.steps.back().data.begin(), rec.steps.back().data.end()));
   EXPECT_EQ(rec.steps.back().sorted_boundary, 0);
 }
+
+TEST(VizRecordings, TwoCrystalBallsRecordingHasTerminalResult) {
+  std::vector<int> breaks = {0, 0, 0, 0, 1, 1, 1, 1};
+  auto rec = viz::record_two_crystal_balls(breaks);
+
+  ASSERT_FALSE(rec.steps.empty());
+  EXPECT_EQ(rec.algorithm_name, "two_crystal_balls");
+  EXPECT_EQ(rec.steps.back().found_index, 4);
+}

@@ -302,4 +302,16 @@ inline void run_bubble_sort_viz(std::vector<int> input) {
   run_visualizer(std::move(recording), code, false, 0, recorder);
 }
 
+inline void run_two_crystal_balls_viz(std::vector<int> input) {
+  auto code = two_crystal_balls_code();
+
+  auto recorder = [](const std::vector<int> &data,
+                     int /*tgt*/) -> AlgorithmRecording {
+    return record_two_crystal_balls(data);
+  };
+
+  auto recording = recorder(input, 0);
+  run_visualizer(std::move(recording), code, false, 0, recorder);
+}
+
 } // namespace viz

@@ -97,6 +97,28 @@ inline auto pick_target(const std::vector<int> &data) -> int {
   return 99;
 }
 
+inline auto two_crystal_balls_array(int size, int break_index = -1)
+    -> std::vector<int> {
+  if (size <= 0) {
+    return {};
+  }
+
+  if (break_index < 0) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> idx_dist(0, size);
+    break_index = idx_dist(gen);
+  }
+
+  break_index = std::clamp(break_index, 0, size);
+
+  std::vector<int> data(static_cast<std::size_t>(size), 0);
+  for (int idx = break_index; idx < size; ++idx) {
+    data[static_cast<std::size_t>(idx)] = 1;
+  }
+  return data;
+}
+
 inline auto parse_csv_ints(const std::string &input) -> std::vector<int> {
   std::vector<int> result;
   std::istringstream stream(input);
@@ -167,6 +189,25 @@ struct ConfigPanel {
     manual_target_str = std::to_string(current_target);
     on_apply = std::move(apply_cb);
     on_close = std::move(close_cb);
+
+    if (algo_name == "two_crystal_balls") {
+      dist_labels = {
+          "Random breakpoint",
+          "Early break",
+          "Late break",
+          "Never breaks",
+          "Immediate break",
+      };
+    } else {
+      dist_labels = {
+          "Random",
+          "Nearly sorted",
+          "Reversed",
+          "Few unique",
+          "Clustered",
+      };
+    }
+    dist_selected = 0;
 
     test_cases = get_test_cases(algo_name);
     test_case_labels.clear();
@@ -336,22 +377,42 @@ struct ConfigPanel {
     }
 
     std::vector<int> data;
-    switch (dist_selected) {
-    case 0:
-      data = generators::random_array(sz);
-      break;
-    case 1:
-      data = generators::nearly_sorted(sz);
-      break;
-    case 2:
-      data = generators::sorted_desc(sz);
-      break;
-    case 3:
-      data = generators::few_unique(sz);
-      break;
-    case 4:
-      data = generators::clustered(sz);
-      break;
+    if (algo_name == "two_crystal_balls") {
+      switch (dist_selected) {
+      case 0:
+        data = generators::two_crystal_balls_array(sz);
+        break;
+      case 1:
+        data = generators::two_crystal_balls_array(sz, sz / 4);
+        break;
+      case 2:
+        data = generators::two_crystal_balls_array(sz, (sz * 3) / 4);
+        break;
+      case 3:
+        data = generators::two_crystal_balls_array(sz, sz);
+        break;
+      case 4:
+        data = generators::two_crystal_balls_array(sz, 0);
+        break;
+      }
+    } else {
+      switch (dist_selected) {
+      case 0:
+        data = generators::random_array(sz);
+        break;
+      case 1:
+        data = generators::nearly_sorted(sz);
+        break;
+      case 2:
+        data = generators::sorted_desc(sz);
+        break;
+      case 3:
+        data = generators::few_unique(sz);
+        break;
+      case 4:
+        data = generators::clustered(sz);
+        break;
+      }
     }
 
     if (data.empty()) {
