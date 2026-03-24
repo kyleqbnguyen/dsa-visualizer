@@ -9,6 +9,7 @@
 
 #include "array_viz.h"
 #include "config_overlay.h"
+#include "list_viz.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ constexpr int kLinearSearch = 0;
 constexpr int kBinarySearch = 1;
 constexpr int kBubbleSort = 2;
 constexpr int kTwoCrystalBalls = 3;
+constexpr int kSinglyLinkedList = 4;
+constexpr int kDoublyLinkedList = 5;
 
 auto build_menu_entries() -> std::vector<MenuEntry> {
   return {
@@ -33,6 +36,8 @@ auto build_menu_entries() -> std::vector<MenuEntry> {
        .is_category = false,
        .algo_id = kTwoCrystalBalls},
       {.label = "Linked Lists", .is_category = true},
+      {.label = "  Singly Linked List", .is_category = false, .algo_id = kSinglyLinkedList},
+      {.label = "  Doubly Linked List", .is_category = false, .algo_id = kDoublyLinkedList},
       {.label = "Trees", .is_category = true},
       {.label = "Graphs", .is_category = true},
   };
@@ -173,6 +178,12 @@ void run_selected(int algo_id) {
     break;
   case kTwoCrystalBalls:
     viz::run_two_crystal_balls_viz(data);
+    break;
+  case kSinglyLinkedList:
+    viz::run_singly_linked_list_viz({3, 7, 12, 5, 9});
+    break;
+  case kDoublyLinkedList:
+    viz::run_doubly_linked_list_viz({3, 7, 12, 5, 9});
     break;
   default:
     break;

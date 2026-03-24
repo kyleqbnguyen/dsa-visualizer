@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "list_snapshot.h"
+
 namespace viz {
 
 struct TestCase {
@@ -10,6 +12,15 @@ struct TestCase {
   std::string description;
   std::vector<int> data;
   int target = 0;
+};
+
+struct ListTestCase {
+  std::string label;
+  std::string description;
+  std::vector<int> initial_values;
+  ListOp op;
+  int value = 0;
+  int index = 0;
 };
 
 inline auto linear_search_test_cases() -> std::vector<TestCase> {
@@ -180,6 +191,153 @@ inline auto get_test_cases(const std::string &algo_name)
     return bubble_sort_test_cases();
   if (algo_name == "two_crystal_balls")
     return two_crystal_balls_test_cases();
+  return {};
+}
+
+inline auto singly_linked_list_test_cases() -> std::vector<ListTestCase> {
+  return {
+      {
+          .label = "Prepend to non-empty list",
+          .description = "Prepend 99 to [3, 7, 12, 5]",
+          .initial_values = {3, 7, 12, 5},
+          .op = ListOp::kPrepend,
+          .value = 99,
+          .index = 0,
+      },
+      {
+          .label = "Append to non-empty list",
+          .description = "Append 99 to [3, 7, 12]",
+          .initial_values = {3, 7, 12},
+          .op = ListOp::kAppend,
+          .value = 99,
+          .index = 0,
+      },
+      {
+          .label = "Insert into middle",
+          .description = "Insert 99 at index 2 in [3, 7, 12, 5, 9]",
+          .initial_values = {3, 7, 12, 5, 9},
+          .op = ListOp::kInsertAt,
+          .value = 99,
+          .index = 2,
+      },
+      {
+          .label = "Insert at head (idx=0)",
+          .description = "Insert 99 at index 0 in [3, 7, 12]",
+          .initial_values = {3, 7, 12},
+          .op = ListOp::kInsertAt,
+          .value = 99,
+          .index = 0,
+      },
+      {
+          .label = "Remove from middle",
+          .description = "Remove index 2 from [3, 7, 12, 5, 9]",
+          .initial_values = {3, 7, 12, 5, 9},
+          .op = ListOp::kRemoveAt,
+          .value = 0,
+          .index = 2,
+      },
+      {
+          .label = "Remove head",
+          .description = "Remove index 0 from [3, 7, 12]",
+          .initial_values = {3, 7, 12},
+          .op = ListOp::kRemoveAt,
+          .value = 0,
+          .index = 0,
+      },
+      {
+          .label = "Get middle element",
+          .description = "Get index 3 from [3, 7, 12, 5, 9]",
+          .initial_values = {3, 7, 12, 5, 9},
+          .op = ListOp::kGet,
+          .value = 0,
+          .index = 3,
+      },
+      {
+          .label = "Prepend to empty list",
+          .description = "Prepend 42 to empty list",
+          .initial_values = {},
+          .op = ListOp::kPrepend,
+          .value = 42,
+          .index = 0,
+      },
+  };
+}
+
+inline auto doubly_linked_list_test_cases() -> std::vector<ListTestCase> {
+  return {
+      {
+          .label = "Prepend to non-empty list",
+          .description = "Prepend 99 to [3, 7, 12, 5]",
+          .initial_values = {3, 7, 12, 5},
+          .op = ListOp::kPrepend,
+          .value = 99,
+          .index = 0,
+      },
+      {
+          .label = "Append to non-empty list",
+          .description = "Append 99 to [3, 7, 12]",
+          .initial_values = {3, 7, 12},
+          .op = ListOp::kAppend,
+          .value = 99,
+          .index = 0,
+      },
+      {
+          .label = "Insert into middle",
+          .description = "Insert 99 at index 2 in [3, 7, 12, 5, 9]",
+          .initial_values = {3, 7, 12, 5, 9},
+          .op = ListOp::kInsertAt,
+          .value = 99,
+          .index = 2,
+      },
+      {
+          .label = "Insert at head (idx=0)",
+          .description = "Insert 99 at index 0 in [3, 7, 12]",
+          .initial_values = {3, 7, 12},
+          .op = ListOp::kInsertAt,
+          .value = 99,
+          .index = 0,
+      },
+      {
+          .label = "Remove from middle",
+          .description = "Remove index 2 from [3, 7, 12, 5, 9]",
+          .initial_values = {3, 7, 12, 5, 9},
+          .op = ListOp::kRemoveAt,
+          .value = 0,
+          .index = 2,
+      },
+      {
+          .label = "Remove head",
+          .description = "Remove index 0 from [3, 7, 12]",
+          .initial_values = {3, 7, 12},
+          .op = ListOp::kRemoveAt,
+          .value = 0,
+          .index = 0,
+      },
+      {
+          .label = "Get middle element",
+          .description = "Get index 3 from [3, 7, 12, 5, 9]",
+          .initial_values = {3, 7, 12, 5, 9},
+          .op = ListOp::kGet,
+          .value = 0,
+          .index = 3,
+      },
+      {
+          .label = "Prepend to empty list",
+          .description = "Prepend 42 to empty list",
+          .initial_values = {},
+          .op = ListOp::kPrepend,
+          .value = 42,
+          .index = 0,
+      },
+  };
+}
+
+inline auto get_list_test_cases(const std::string &algo_name)
+    -> std::vector<ListTestCase> {
+  if (algo_name == "singly_linked_list")
+    return singly_linked_list_test_cases();
+  if (algo_name == "doubly_linked_list")
+    return doubly_linked_list_test_cases();
   return {};
 }
 
