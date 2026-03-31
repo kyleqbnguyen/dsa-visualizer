@@ -1,9 +1,7 @@
 #pragma once
 
-#include <algorithm>
 #include <charconv>
 #include <functional>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -16,31 +14,27 @@
 
 namespace viz {
 
-struct ListConfig {
+struct StackQueueConfig {
   std::vector<int> initial_values;
-  ListOp op = ListOp::kAppend;
+  ListOp op = ListOp::kPush;
   int value = 0;
-  int index = 0;
 };
 
-struct ListConfigResult {
-  ListConfig config;
+struct StackQueueConfigResult {
+  StackQueueConfig config;
   std::string test_case_label;
-  bool applied = false;
   bool reset_initial_values = false;
 };
 
-struct ListConfigPanel {
-  std::string algo_name;
+struct StackQueueConfigPanel {
+  bool is_stack = true;
 
-  std::vector<std::string> op_labels = {"Prepend", "Append", "Insert At",
-                                        "Remove At", "Get"};
-  int op_selected = 1;
+  std::vector<std::string> op_labels;
+  int op_selected = 0;
 
-  std::string value_str = "99";
-  std::string index_str = "0";
+  std::string value_str = "10";
 
-  std::vector<ListTestCase> test_cases;
+  std::vector<StackQueueTestCase> test_cases;
   std::vector<std::string> test_case_labels;
   int test_case_selected = 0;
 
@@ -49,19 +43,26 @@ struct ListConfigPanel {
 
   std::string validation_msg;
 
-  std::function<void(const ListConfigResult &)> on_apply;
+  std::function<void(const StackQueueConfigResult &)> on_apply;
   std::function<void()> on_close;
 
   ftxui::Component component;
 
-  void init(const std::string &algo,
-            std::function<void(const ListConfigResult &)> apply_cb,
+  void init(bool stack,
+            std::function<void(const StackQueueConfigResult &)> apply_cb,
             std::function<void()> close_cb) {
-    algo_name = algo;
+    is_stack = stack;
     on_apply = std::move(apply_cb);
     on_close = std::move(close_cb);
 
-    test_cases = get_list_test_cases(algo_name);
+    if (is_stack) {
+      op_labels = {"Push", "Pop"};
+    } else {
+      op_labels = {"Enqueue", "Dequeue"};
+    }
+    op_selected = 0;
+
+    test_cases = get_stack_queue_test_cases(is_stack);
     test_case_labels.clear();
     test_case_labels.push_back("(None)");
     for (const auto &tc : test_cases) {
@@ -82,29 +83,23 @@ struct ListConfigPanel {
     value_opt.multiline = false;
     auto value_input = Input(&value_str, "value", value_opt);
 
-    auto index_opt = InputOption();
-    index_opt.multiline = false;
-    auto index_input = Input(&index_str, "index", index_opt);
-
     auto test_case_menu = Radiobox(&test_case_labels, &test_case_selected);
     auto tab_toggle = Toggle(&tab_labels, &tab_selected);
 
-    auto dataset_container = Container::Vertical(
-        {op_radio, value_input, index_input});
+    auto dataset_container = Container::Vertical({op_radio, value_input});
     auto test_case_container = Container::Vertical({test_case_menu});
     auto tab_container =
         Container::Tab({dataset_container, test_case_container}, &tab_selected);
     auto inner = Container::Vertical({tab_toggle, tab_container});
 
     auto renderer = Renderer(inner, [=, this] {
-      bool show_value = (op_selected == 0 || op_selected == 1 ||
-                         op_selected == 2);
-      bool show_index = (op_selected == 2 || op_selected == 3 ||
-                         op_selected == 4);
+      // Push/Enqueue (index 0) shows value; Pop/Dequeue (index 1) does not
+      bool show_value = (op_selected == 0);
+
+      std::string title = is_stack ? " Configure: Stack " : " Configure: Queue ";
 
       Elements content;
-      content.push_back(
-          text(" Configure: " + algo_name + " ") | bold | center);
+      content.push_back(text(title) | bold | center);
       content.push_back(separator());
       content.push_back(tab_toggle->Render() | center);
       content.push_back(separator());
@@ -121,10 +116,8 @@ struct ListConfigPanel {
         if (show_value) {
           params.push_back(text("Value:"));
           params.push_back(value_input->Render() | border);
-        }
-        if (show_index) {
-          params.push_back(text("Index:"));
-          params.push_back(index_input->Render() | border);
+        } else {
+          params.push_back(text("(no parameters)") | dim);
         }
         cols.push_back(separator());
         cols.push_back(vbox(std::move(params)) | flex);
@@ -138,13 +131,13 @@ struct ListConfigPanel {
           auto &tc = test_cases[test_case_selected - 1];
           content.push_back(text(tc.description) | dim);
           std::string preview;
-          for (int i = 0; i < static_cast<int>(tc.initial_values.size());
-               ++i) {
+          for (int i = 0; i < static_cast<int>(tc.initial_values.size()); ++i) {
             if (i > 0)
               preview += ", ";
             preview += std::to_string(tc.initial_values[i]);
           }
-          content.push_back(text("Data: [" + preview + "]") | dim);
+          std::string data_str = tc.initial_values.empty() ? "(empty)" : "[" + preview + "]";
+          content.push_back(text("Data: " + data_str) | dim);
         }
       }
 
@@ -179,7 +172,7 @@ struct ListConfigPanel {
   }
 
   void try_apply() {
-    ListConfigResult result;
+    StackQueueConfigResult result;
 
     if (tab_selected == 1) {
       if (test_case_selected > 0 &&
@@ -188,9 +181,7 @@ struct ListConfigPanel {
         result.config.initial_values = tc.initial_values;
         result.config.op = tc.op;
         result.config.value = tc.value;
-        result.config.index = tc.index;
         result.test_case_label = tc.label;
-        result.applied = true;
         result.reset_initial_values = true;
         validation_msg.clear();
         if (on_apply)
@@ -199,36 +190,35 @@ struct ListConfigPanel {
       return;
     }
 
-    static constexpr ListOp ops[] = {ListOp::kPrepend, ListOp::kAppend,
-                                     ListOp::kInsertAt, ListOp::kRemoveAt,
-                                     ListOp::kGet};
-    result.config.op = ops[op_selected];
+    // Dataset tab
+    result.config.op = is_stack
+        ? (op_selected == 0 ? ListOp::kPush : ListOp::kPop)
+        : (op_selected == 0 ? ListOp::kEnqueue : ListOp::kDequeue);
 
-    bool need_value = (op_selected == 0 || op_selected == 1 || op_selected == 2);
-    bool need_index = (op_selected == 2 || op_selected == 3 || op_selected == 4);
-
-    if (need_value) {
-      auto parsed = generators::parse_csv_ints(value_str);
-      if (parsed.empty()) {
+    if (op_selected == 0) {
+      // Parse value
+      int parsed_val = 0;
+      auto [ptr, ec] = std::from_chars(
+          value_str.data(), value_str.data() + value_str.size(), parsed_val);
+      if (ec != std::errc{}) {
         validation_msg = "Error: invalid value.";
         return;
       }
-      result.config.value = parsed[0];
+      result.config.value = parsed_val;
     }
 
-    if (need_index) {
-      auto parsed = generators::parse_csv_ints(index_str);
-      if (parsed.empty()) {
-        validation_msg = "Error: invalid index.";
-        return;
-      }
-      result.config.index = parsed[0];
-    }
-
-    result.applied = true;
+    result.reset_initial_values = false;
     validation_msg.clear();
     if (on_apply)
       on_apply(result);
+  }
+
+  void sync_op(ListOp op) {
+    if (is_stack) {
+      op_selected = (op == ListOp::kPush) ? 0 : 1;
+    } else {
+      op_selected = (op == ListOp::kEnqueue) ? 0 : 1;
+    }
   }
 };
 

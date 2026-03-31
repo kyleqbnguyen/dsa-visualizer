@@ -175,6 +175,16 @@ inline auto doubly_get_code() -> CodePanel {
 
 // --- Code panel selector ---
 
+inline auto idle_code_panel() -> CodePanel {
+  return {
+      .title = "No operation selected",
+      .lines =
+          {
+              "Press [C] to configure an operation",
+          },
+  };
+}
+
 inline auto get_singly_code_panel(ListOp op) -> CodePanel {
   switch (op) {
   case ListOp::kPrepend:
@@ -187,8 +197,9 @@ inline auto get_singly_code_panel(ListOp op) -> CodePanel {
     return singly_remove_at_code();
   case ListOp::kGet:
     return singly_get_code();
+  default:
+    return idle_code_panel();
   }
-  return singly_append_code();
 }
 
 inline auto get_doubly_code_panel(ListOp op) -> CodePanel {
@@ -203,8 +214,9 @@ inline auto get_doubly_code_panel(ListOp op) -> CodePanel {
     return doubly_remove_at_code();
   case ListOp::kGet:
     return doubly_get_code();
+  default:
+    return idle_code_panel();
   }
-  return doubly_append_code();
 }
 
 } // namespace viz

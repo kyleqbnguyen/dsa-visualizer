@@ -341,4 +341,83 @@ inline auto get_list_test_cases(const std::string &algo_name)
   return {};
 }
 
+struct StackQueueTestCase {
+  std::string label;
+  std::string description;
+  std::vector<int> initial_values;
+  ListOp op;
+  int value = 0;
+};
+
+inline auto stack_test_cases() -> std::vector<StackQueueTestCase> {
+  return {
+      {
+          .label = "Push onto non-empty",
+          .description = "Push 10 onto [5, 3, 8, 1, 6]",
+          .initial_values = {5, 3, 8, 1, 6},
+          .op = ListOp::kPush,
+          .value = 10,
+      },
+      {
+          .label = "Push onto empty",
+          .description = "Push 42 onto an empty stack",
+          .initial_values = {},
+          .op = ListOp::kPush,
+          .value = 42,
+      },
+      {
+          .label = "Pop from non-empty",
+          .description = "Pop top from [5, 3, 8, 1, 6]",
+          .initial_values = {5, 3, 8, 1, 6},
+          .op = ListOp::kPop,
+          .value = 0,
+      },
+      {
+          .label = "Pop from empty (error)",
+          .description = "Pop from empty stack — shows error",
+          .initial_values = {},
+          .op = ListOp::kPop,
+          .value = 0,
+      },
+  };
+}
+
+inline auto queue_test_cases() -> std::vector<StackQueueTestCase> {
+  return {
+      {
+          .label = "Enqueue onto non-empty",
+          .description = "Enqueue 10 onto [5, 3, 8, 1, 6]",
+          .initial_values = {5, 3, 8, 1, 6},
+          .op = ListOp::kEnqueue,
+          .value = 10,
+      },
+      {
+          .label = "Enqueue onto empty",
+          .description = "Enqueue 42 onto an empty queue",
+          .initial_values = {},
+          .op = ListOp::kEnqueue,
+          .value = 42,
+      },
+      {
+          .label = "Dequeue from non-empty",
+          .description = "Dequeue front from [5, 3, 8, 1, 6]",
+          .initial_values = {5, 3, 8, 1, 6},
+          .op = ListOp::kDequeue,
+          .value = 0,
+      },
+      {
+          .label = "Dequeue from empty (error)",
+          .description = "Dequeue from empty queue — shows error",
+          .initial_values = {},
+          .op = ListOp::kDequeue,
+          .value = 0,
+      },
+  };
+}
+
+inline auto get_stack_queue_test_cases(bool is_stack)
+    -> std::vector<StackQueueTestCase> {
+  return is_stack ? stack_test_cases() : queue_test_cases();
+}
+
 } // namespace viz

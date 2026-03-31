@@ -11,7 +11,7 @@ TEST(ListRecordings, SinglyAppendHasCorrectFinalState) {
   EXPECT_EQ(rec.op, viz::ListOp::kAppend);
   auto &last = rec.steps.back();
   ASSERT_EQ(last.nodes.size(), 4u);
-  EXPECT_EQ(last.nodes.back().state, viz::ListNodeState::kFound);
+  EXPECT_EQ(last.nodes.back().state, viz::ListNodeState::kDone);
   EXPECT_EQ(last.nodes.back().value, 99);
 }
 
@@ -21,7 +21,7 @@ TEST(ListRecordings, SinglyPrependHasCorrectFinalState) {
   EXPECT_EQ(rec.op, viz::ListOp::kPrepend);
   auto &last = rec.steps.back();
   ASSERT_EQ(last.nodes.size(), 4u);
-  EXPECT_EQ(last.nodes.front().state, viz::ListNodeState::kFound);
+  EXPECT_EQ(last.nodes.front().state, viz::ListNodeState::kDone);
   EXPECT_EQ(last.nodes.front().value, 99);
 }
 
@@ -32,7 +32,7 @@ TEST(ListRecordings, SinglyInsertAtMiddle) {
   auto &last = rec.steps.back();
   ASSERT_EQ(last.nodes.size(), 6u);
   EXPECT_EQ(last.nodes[2].value, 99);
-  EXPECT_EQ(last.nodes[2].state, viz::ListNodeState::kFound);
+  EXPECT_EQ(last.nodes[2].state, viz::ListNodeState::kDone);
 }
 
 TEST(ListRecordings, SinglyRemoveAtMiddle) {
@@ -59,7 +59,7 @@ TEST(ListRecordings, DoublyAppendHasCorrectFinalState) {
   EXPECT_EQ(rec.op, viz::ListOp::kAppend);
   auto &last = rec.steps.back();
   ASSERT_EQ(last.nodes.size(), 4u);
-  EXPECT_EQ(last.nodes.back().state, viz::ListNodeState::kFound);
+  EXPECT_EQ(last.nodes.back().state, viz::ListNodeState::kDone);
   EXPECT_EQ(last.nodes.back().value, 99);
 }
 
@@ -69,7 +69,7 @@ TEST(ListRecordings, DoublyPrependHasCorrectFinalState) {
   auto &last = rec.steps.back();
   ASSERT_EQ(last.nodes.size(), 4u);
   EXPECT_EQ(last.nodes.front().value, 99);
-  EXPECT_EQ(last.nodes.front().state, viz::ListNodeState::kFound);
+  EXPECT_EQ(last.nodes.front().state, viz::ListNodeState::kDone);
 }
 
 TEST(ListRecordings, DoublyRemoveAtMiddle) {

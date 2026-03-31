@@ -28,6 +28,7 @@ inline constexpr auto kNew = ftxui::Color::Cyan;
 inline constexpr auto kTarget = ftxui::Color::Cyan;
 inline constexpr auto kFound = ftxui::Color::Green;
 inline constexpr auto kRemoved = ftxui::Color::Red;
+inline constexpr auto kDone = ftxui::Color::White;
 } // namespace list_colors
 
 inline auto node_color(ListNodeState state) -> ftxui::Color {
@@ -44,6 +45,8 @@ inline auto node_color(ListNodeState state) -> ftxui::Color {
     return list_colors::kFound;
   case ListNodeState::kRemoved:
     return list_colors::kRemoved;
+  case ListNodeState::kDone:
+    return list_colors::kDone;
   }
   return list_colors::kNormal;
 }
@@ -69,14 +72,7 @@ inline auto render_list(const ListStepSnapshot &snap,
     return vbox(std::move(content)) | border | flex;
   }
 
-  // HEAD label
-  std::vector<Element> head_row;
-  head_row.push_back(text("HEAD") | bold | dim);
-
-  // Node boxes row
-  std::vector<Element> node_row;
-  // Cursor label row
-  std::vector<Element> cursor_row;
+  std::vector<Element> columns;
 
   for (int i = 0; i < static_cast<int>(snap.nodes.size()); ++i) {
     const auto &node = snap.nodes[i];
@@ -88,29 +84,6 @@ inline auto render_list(const ListStepSnapshot &snap,
                }) |
                border | color(col);
 
-    node_row.push_back(box);
-
-    // Arrow after node
-    if (i < static_cast<int>(snap.nodes.size()) - 1) {
-      if (node.has_next) {
-        if (is_doubly) {
-          node_row.push_back(text(" <-> ") | dim);
-        } else {
-          node_row.push_back(text(" --> ") | dim);
-        }
-      } else {
-        node_row.push_back(text("  ×  ") | dim | color(Color::Red));
-      }
-    } else {
-      // Last node
-      if (node.has_next) {
-        node_row.push_back(text(" --> ...") | dim);
-      } else {
-        node_row.push_back(text(" --> NULL") | dim);
-      }
-    }
-
-    // Cursor label
     std::string label;
     if (node.state == ListNodeState::kActive) {
       label = "curr";
@@ -122,21 +95,42 @@ inline auto render_list(const ListStepSnapshot &snap,
       label = "del";
     }
 
+    Element cursor_el;
     if (!label.empty()) {
-      // Pad cursor label to roughly center under the node box
-      cursor_row.push_back(text("  " + label + "  ") | bold | color(col));
+      cursor_el = text(label) | bold | color(col) | center;
     } else {
-      cursor_row.push_back(text("       "));
+      cursor_el = text("") | center;
     }
-    // Spacer for the arrow gap
+
+    auto index_el = text("[" + std::to_string(i) + "]") | dim | center;
+
+    columns.push_back(vbox({box, cursor_el, index_el}));
+
     if (i < static_cast<int>(snap.nodes.size()) - 1) {
-      cursor_row.push_back(text("     "));
+      Element arrow;
+      if (node.has_next) {
+        if (is_doubly) {
+          arrow = text(" <-> ") | dim;
+        } else {
+          arrow = text(" --> ") | dim;
+        }
+      } else {
+        arrow = text("  ×  ") | dim | color(Color::Red);
+      }
+      columns.push_back(vbox({arrow | vcenter, text(""), text("")}));
+    } else {
+      Element tail;
+      if (node.has_next) {
+        tail = text(" --> ...") | dim;
+      } else {
+        tail = text(" --> NULL") | dim;
+      }
+      columns.push_back(vbox({tail | vcenter, text(""), text("")}));
     }
   }
 
-  content.push_back(hbox(std::move(head_row)) | center);
-  content.push_back(hbox(std::move(node_row)) | center);
-  content.push_back(hbox(std::move(cursor_row)) | center);
+  content.push_back(text("HEAD") | bold | dim | center);
+  content.push_back(hbox(std::move(columns)) | center);
 
   if (!snap.status_text.empty()) {
     content.push_back(separator());
@@ -311,7 +305,7 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
   auto apply_config = [&](const ListConfigResult &result) {
     auto preserved = extract_final_values(recording);
     current_config = result.config;
-    if (!result.config.initial_values.empty()) {
+    if (result.reset_initial_values) {
       current_config.initial_values = result.config.initial_values;
     } else {
       current_config.initial_values = preserved;
@@ -324,6 +318,15 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
     ctrl.reset();
     ctrl.test_case_label = result.test_case_label;
     trace_scroll.store(-1, std::memory_order_relaxed);
+    static constexpr ListOp kOps[] = {ListOp::kPrepend, ListOp::kAppend,
+                                      ListOp::kInsertAt, ListOp::kRemoveAt,
+                                      ListOp::kGet};
+    for (int i = 0; i < 5; ++i) {
+      if (kOps[i] == current_config.op) {
+        config_panel.op_selected = i;
+        break;
+      }
+    }
     config_open = false;
     screen.Post(Event::Custom);
   };
@@ -415,6 +418,8 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
         text(" Speed ") | dim,
         text("[C]") | bold,
         text(" Config ") | dim,
+        text("[X]") | bold,
+        text(" Clear ") | dim,
         text("[T]") | bold,
         text(" Trace ") | dim,
         text("[V]") | bold,
@@ -513,6 +518,19 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
       screen.Post(Event::Custom);
       return true;
     }
+    if (event == Event::Character('x') || event == Event::Character('X')) {
+      current_config.initial_values = {};
+      recording = re_record(current_config);
+      code = is_doubly ? get_doubly_code_panel(current_config.op)
+                       : get_singly_code_panel(current_config.op);
+      ctrl.total_steps.store(static_cast<int>(recording.steps.size()),
+                             std::memory_order_relaxed);
+      ctrl.reset();
+      ctrl.test_case_label = "";
+      trace_scroll.store(-1, std::memory_order_relaxed);
+      screen.Post(Event::Custom);
+      return true;
+    }
     return false;
   });
 
@@ -527,8 +545,8 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
 inline void run_singly_linked_list_viz(std::vector<int> initial) {
   ListConfig config;
   config.initial_values = initial;
-  config.op = ListOp::kAppend;
-  config.value = 99;
+  config.op = ListOp::kNone;
+  config.value = 0;
   config.index = 0;
 
   auto recorder = [](const ListConfig &cfg) -> ListAlgorithmRecording {
@@ -547,8 +565,9 @@ inline void run_singly_linked_list_viz(std::vector<int> initial) {
     case ListOp::kGet:
       return record_singly_get(cfg.initial_values,
                                static_cast<size_t>(cfg.index));
+    default:
+      return record_idle(cfg.initial_values, "Singly Linked List", false);
     }
-    return record_singly_append(cfg.initial_values, cfg.value);
   };
 
   auto recording = recorder(config);
@@ -559,8 +578,8 @@ inline void run_singly_linked_list_viz(std::vector<int> initial) {
 inline void run_doubly_linked_list_viz(std::vector<int> initial) {
   ListConfig config;
   config.initial_values = initial;
-  config.op = ListOp::kAppend;
-  config.value = 99;
+  config.op = ListOp::kNone;
+  config.value = 0;
   config.index = 0;
 
   auto recorder = [](const ListConfig &cfg) -> ListAlgorithmRecording {
@@ -579,8 +598,9 @@ inline void run_doubly_linked_list_viz(std::vector<int> initial) {
     case ListOp::kGet:
       return record_doubly_get(cfg.initial_values,
                                static_cast<size_t>(cfg.index));
+    default:
+      return record_idle(cfg.initial_values, "Doubly Linked List", true);
     }
-    return record_doubly_append(cfg.initial_values, cfg.value);
   };
 
   auto recording = recorder(config);

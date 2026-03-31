@@ -26,6 +26,44 @@ inline auto snap_list(const std::vector<int> &vals, bool doubly)
 } // namespace detail
 
 // ──────────────────────────────────────────
+//  Idle recorder (no operation selected)
+// ──────────────────────────────────────────
+
+inline auto record_idle(const std::vector<int> &initial,
+                        const std::string &title, bool doubly)
+    -> ListAlgorithmRecording {
+  ListAlgorithmRecording rec;
+  rec.title = title;
+  rec.algorithm_name = doubly ? "doubly_linked_list" : "singly_linked_list";
+  rec.op = ListOp::kNone;
+
+  ListStepSnapshot snap;
+  snap.nodes = detail::snap_list(initial, doubly);
+  snap.status_text = "Press [C] to select an operation";
+  snap.current_line = -1;
+  rec.steps.push_back(std::move(snap));
+
+  return rec;
+}
+
+inline auto record_stack_queue_idle(const std::vector<int> &initial,
+                                    const std::string &title)
+    -> ListAlgorithmRecording {
+  ListAlgorithmRecording rec;
+  rec.title = title;
+  rec.algorithm_name = title.find("Stack") != std::string::npos ? "stack" : "queue";
+  rec.op = ListOp::kNone;
+
+  ListStepSnapshot snap;
+  snap.nodes = detail::snap_list(initial, false);
+  snap.status_text = "Press [C] to select an operation";
+  snap.current_line = -1;
+  rec.steps.push_back(std::move(snap));
+
+  return rec;
+}
+
+// ──────────────────────────────────────────
 //  Singly Linked List recorders
 // ──────────────────────────────────────────
 
@@ -36,7 +74,6 @@ inline auto record_singly_prepend(const std::vector<int> &initial, int val)
   rec.algorithm_name = "singly_linked_list";
   rec.op = ListOp::kPrepend;
 
-  // Step 1: initial snapshot
   {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
@@ -46,7 +83,6 @@ inline auto record_singly_prepend(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Step 2: new node created
   {
     ListStepSnapshot snap;
     std::vector<int> with_new = {val};
@@ -61,7 +97,6 @@ inline auto record_singly_prepend(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Step 3: node->next = head
   {
     ListStepSnapshot snap;
     std::vector<int> with_new = {val};
@@ -76,13 +111,12 @@ inline auto record_singly_prepend(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Step 4: head = node
   {
     ListStepSnapshot snap;
     std::vector<int> with_new = {val};
     with_new.insert(with_new.end(), initial.begin(), initial.end());
     snap.nodes = detail::snap_list(with_new, false);
-    snap.nodes[0].state = ListNodeState::kFound;
+    snap.nodes[0].state = ListNodeState::kDone;
     snap.status_text = "Update head pointer";
     snap.trace_entry = "head = node; ++length";
     snap.current_line = 2;
@@ -91,13 +125,12 @@ inline auto record_singly_prepend(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Step 5: final
   {
     ListStepSnapshot snap;
     std::vector<int> with_new = {val};
     with_new.insert(with_new.end(), initial.begin(), initial.end());
     snap.nodes = detail::snap_list(with_new, false);
-    snap.nodes[0].state = ListNodeState::kFound;
+    snap.nodes[0].state = ListNodeState::kDone;
     snap.status_text = "Prepend complete";
     snap.trace_entry = "done";
     snap.current_line = 3;
@@ -115,7 +148,6 @@ inline auto record_singly_append(const std::vector<int> &initial, int val)
   rec.algorithm_name = "singly_linked_list";
   rec.op = ListOp::kAppend;
 
-  // Step 1: initial
   {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
@@ -126,7 +158,6 @@ inline auto record_singly_append(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Traverse from head to tail
   for (size_t i = 0; i < initial.size(); ++i) {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
@@ -147,7 +178,6 @@ inline auto record_singly_append(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // New node created
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -166,7 +196,6 @@ inline auto record_singly_append(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // curr->next = node
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -180,13 +209,12 @@ inline auto record_singly_append(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // tail = node, final
   {
     ListStepSnapshot snap;
     auto result = initial;
     result.push_back(val);
     snap.nodes = detail::snap_list(result, false);
-    snap.nodes.back().state = ListNodeState::kFound;
+    snap.nodes.back().state = ListNodeState::kDone;
     snap.status_text = "Append complete";
     snap.trace_entry = "tail = node; ++length";
     snap.current_line = 6;
@@ -205,7 +233,6 @@ inline auto record_singly_insert_at(const std::vector<int> &initial,
   rec.algorithm_name = "singly_linked_list";
   rec.op = ListOp::kInsertAt;
 
-  // Initial
   {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
@@ -218,7 +245,6 @@ inline auto record_singly_insert_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Traverse to index - 1
   size_t traverse_to = (index > 0) ? index - 1 : 0;
   for (size_t i = 0; i <= traverse_to && i < initial.size(); ++i) {
     ListStepSnapshot snap;
@@ -234,7 +260,6 @@ inline auto record_singly_insert_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // New node created
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -254,7 +279,6 @@ inline auto record_singly_insert_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Rewire pointers
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -270,13 +294,12 @@ inline auto record_singly_insert_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Final
   {
     ListStepSnapshot snap;
     auto result = initial;
     result.insert(result.begin() + static_cast<int>(index), val);
     snap.nodes = detail::snap_list(result, false);
-    snap.nodes[static_cast<int>(index)].state = ListNodeState::kFound;
+    snap.nodes[static_cast<int>(index)].state = ListNodeState::kDone;
     snap.status_text = "Insert complete";
     snap.trace_entry = "++length";
     snap.current_line = 9;
@@ -295,7 +318,6 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
   rec.algorithm_name = "singly_linked_list";
   rec.op = ListOp::kRemoveAt;
 
-  // Initial
   {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
@@ -308,7 +330,6 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
   }
 
   if (index == 0) {
-    // Special case: remove head
     {
       ListStepSnapshot snap;
       snap.nodes = detail::snap_list(initial, false);
@@ -321,7 +342,6 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
       rec.steps.push_back(std::move(snap));
     }
   } else {
-    // Traverse to index - 1
     for (size_t i = 0; i < index && i < initial.size(); ++i) {
       ListStepSnapshot snap;
       snap.nodes = detail::snap_list(initial, false);
@@ -335,7 +355,6 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
       rec.steps.push_back(std::move(snap));
     }
 
-    // Mark node as removed
     {
       ListStepSnapshot snap;
       snap.nodes = detail::snap_list(initial, false);
@@ -348,7 +367,6 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
       rec.steps.push_back(std::move(snap));
     }
 
-    // Rewire: prev->next = curr->next
     {
       ListStepSnapshot snap;
       snap.nodes = detail::snap_list(initial, false);
@@ -366,7 +384,6 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
     }
   }
 
-  // Final: node gone
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -391,7 +408,6 @@ inline auto record_singly_get(const std::vector<int> &initial, size_t index)
   rec.algorithm_name = "singly_linked_list";
   rec.op = ListOp::kGet;
 
-  // Initial
   {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
@@ -403,7 +419,6 @@ inline auto record_singly_get(const std::vector<int> &initial, size_t index)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Traverse
   size_t limit = (index < initial.size()) ? index : initial.size() - 1;
   for (size_t i = 0; i <= limit; ++i) {
     ListStepSnapshot snap;
@@ -429,7 +444,6 @@ inline auto record_singly_get(const std::vector<int> &initial, size_t index)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Final
   {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
@@ -474,7 +488,6 @@ inline auto record_doubly_prepend(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // New node
   {
     ListStepSnapshot snap;
     std::vector<int> with_new = {val};
@@ -493,7 +506,6 @@ inline auto record_doubly_prepend(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // node->next = head; head->prev = node
   {
     ListStepSnapshot snap;
     std::vector<int> with_new = {val};
@@ -507,13 +519,12 @@ inline auto record_doubly_prepend(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // head = node
   {
     ListStepSnapshot snap;
     std::vector<int> with_new = {val};
     with_new.insert(with_new.end(), initial.begin(), initial.end());
     snap.nodes = detail::snap_list(with_new, true);
-    snap.nodes[0].state = ListNodeState::kFound;
+    snap.nodes[0].state = ListNodeState::kDone;
     snap.status_text = "Update head pointer";
     snap.trace_entry = "head = node; ++length";
     snap.current_line = 3;
@@ -522,13 +533,12 @@ inline auto record_doubly_prepend(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Final
   {
     ListStepSnapshot snap;
     std::vector<int> with_new = {val};
     with_new.insert(with_new.end(), initial.begin(), initial.end());
     snap.nodes = detail::snap_list(with_new, true);
-    snap.nodes[0].state = ListNodeState::kFound;
+    snap.nodes[0].state = ListNodeState::kDone;
     snap.status_text = "Prepend complete";
     snap.trace_entry = "done";
     snap.current_line = 4;
@@ -572,7 +582,6 @@ inline auto record_doubly_append(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // New node
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -591,7 +600,6 @@ inline auto record_doubly_append(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Link
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -605,13 +613,12 @@ inline auto record_doubly_append(const std::vector<int> &initial, int val)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Final
   {
     ListStepSnapshot snap;
     auto result = initial;
     result.push_back(val);
     snap.nodes = detail::snap_list(result, true);
-    snap.nodes.back().state = ListNodeState::kFound;
+    snap.nodes.back().state = ListNodeState::kDone;
     snap.status_text = "Append complete";
     snap.trace_entry = "tail = node; ++length";
     snap.current_line = 7;
@@ -642,7 +649,6 @@ inline auto record_doubly_insert_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Traverse to index
   for (size_t i = 0; i < index && i < initial.size(); ++i) {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, true);
@@ -656,7 +662,6 @@ inline auto record_doubly_insert_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // New node
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -680,7 +685,6 @@ inline auto record_doubly_insert_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Rewire
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -695,13 +699,12 @@ inline auto record_doubly_insert_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Final
   {
     ListStepSnapshot snap;
     auto result = initial;
     result.insert(result.begin() + static_cast<int>(index), val);
     snap.nodes = detail::snap_list(result, true);
-    snap.nodes[static_cast<int>(index)].state = ListNodeState::kFound;
+    snap.nodes[static_cast<int>(index)].state = ListNodeState::kDone;
     snap.status_text = "Insert complete";
     snap.trace_entry = "++length";
     snap.current_line = 11;
@@ -731,7 +734,6 @@ inline auto record_doubly_remove_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Traverse to index
   for (size_t i = 0; i <= index && i < initial.size(); ++i) {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, true);
@@ -744,7 +746,6 @@ inline auto record_doubly_remove_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Mark removed
   {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, true);
@@ -757,7 +758,6 @@ inline auto record_doubly_remove_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Rewire
   {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, true);
@@ -769,7 +769,6 @@ inline auto record_doubly_remove_at(const std::vector<int> &initial,
     rec.steps.push_back(std::move(snap));
   }
 
-  // Final
   {
     ListStepSnapshot snap;
     auto result = initial;
@@ -827,7 +826,6 @@ inline auto record_doubly_get(const std::vector<int> &initial, size_t index)
     rec.steps.push_back(std::move(snap));
   }
 
-  // Final
   {
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, true);

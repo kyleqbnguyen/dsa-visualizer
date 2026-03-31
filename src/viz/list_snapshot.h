@@ -5,7 +5,8 @@
 
 namespace viz {
 
-enum class ListOp { kPrepend, kAppend, kInsertAt, kRemoveAt, kGet };
+enum class ListOp { kNone, kPrepend, kAppend, kInsertAt, kRemoveAt, kGet,
+                    kPush, kPop, kEnqueue, kDequeue };
 
 enum class ListNodeState {
   kNormal,
@@ -14,6 +15,7 @@ enum class ListNodeState {
   kTarget,
   kFound,
   kRemoved,
+  kDone,
 };
 
 struct ListNodeSnap {

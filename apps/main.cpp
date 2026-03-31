@@ -10,6 +10,7 @@
 #include "array_viz.h"
 #include "config_overlay.h"
 #include "list_viz.h"
+#include "stack_queue_viz.h"
 
 namespace {
 
@@ -25,6 +26,8 @@ constexpr int kBubbleSort = 2;
 constexpr int kTwoCrystalBalls = 3;
 constexpr int kSinglyLinkedList = 4;
 constexpr int kDoublyLinkedList = 5;
+constexpr int kStack = 6;
+constexpr int kQueue = 7;
 
 auto build_menu_entries() -> std::vector<MenuEntry> {
   return {
@@ -38,6 +41,9 @@ auto build_menu_entries() -> std::vector<MenuEntry> {
       {.label = "Linked Lists", .is_category = true},
       {.label = "  Singly Linked List", .is_category = false, .algo_id = kSinglyLinkedList},
       {.label = "  Doubly Linked List", .is_category = false, .algo_id = kDoublyLinkedList},
+      {.label = "Stacks & Queues", .is_category = true},
+      {.label = "  Stack", .is_category = false, .algo_id = kStack},
+      {.label = "  Queue", .is_category = false, .algo_id = kQueue},
       {.label = "Trees", .is_category = true},
       {.label = "Graphs", .is_category = true},
   };
@@ -184,6 +190,12 @@ void run_selected(int algo_id) {
     break;
   case kDoublyLinkedList:
     viz::run_doubly_linked_list_viz({3, 7, 12, 5, 9});
+    break;
+  case kStack:
+    viz::run_stack_viz();
+    break;
+  case kQueue:
+    viz::run_queue_viz();
     break;
   default:
     break;
