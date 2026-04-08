@@ -5,8 +5,18 @@
 
 namespace viz {
 
-enum class ListOp { kNone, kPrepend, kAppend, kInsertAt, kRemoveAt, kGet,
-                    kPush, kPop, kEnqueue, kDequeue };
+enum class ListOp {
+  kNone,
+  kPrepend,
+  kAppend,
+  kInsertAt,
+  kRemoveAt,
+  kGet,
+  kPush,
+  kPop,
+  kEnqueue,
+  kDequeue
+};
 
 enum class ListNodeState {
   kNormal,

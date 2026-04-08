@@ -1,17 +1,17 @@
 #pragma once
 
+#include "code_panel.h"
+#include "snapshot.h"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <string>
 #include <vector>
 
-#include "code_panel.h"
-#include "snapshot.h"
-
 namespace viz {
 
-inline auto record_linear_search(const std::vector<int> &input, int target)
+inline auto record_linear_search(const std::vector<int>& input, int target)
     -> AlgorithmRecording {
   AlgorithmRecording rec;
   rec.title = "Linear Search";
@@ -51,8 +51,7 @@ inline auto record_linear_search(const std::vector<int> &input, int target)
                          std::to_string(idx) + "!";
       snap.trace_entry = "compare(data[" + std::to_string(idx) +
                          "]=" + std::to_string(input[idx]) +
-                         ", target=" + std::to_string(target) +
-                         ") -> MATCH";
+                         ", target=" + std::to_string(target) + ") -> MATCH";
       was_found = true;
       found_at = static_cast<int>(idx);
       rec.steps.push_back(std::move(snap));
@@ -147,8 +146,9 @@ inline auto record_binary_search(std::vector<int> input, int target)
       snap.current_line = binary_search_line(true, false, false);
       snap.status_text = "Found " + std::to_string(target) + " at index " +
                          std::to_string(mid) + "!";
-      snap.trace_entry = "mid=" + std::to_string(mid) + "  data[mid]=" +
-                         std::to_string(input[mid]) + " == target -> FOUND";
+      snap.trace_entry = "mid=" + std::to_string(mid) +
+                         "  data[mid]=" + std::to_string(input[mid]) +
+                         " == target -> FOUND";
       was_found = true;
       found_at = static_cast<int>(mid);
       rec.steps.push_back(std::move(snap));
@@ -157,17 +157,16 @@ inline auto record_binary_search(std::vector<int> input, int target)
 
     snap.current_line = binary_search_line(false, val_lt, false);
     snap.status_text = "Window [" + std::to_string(low) + ", " +
-                       std::to_string(high) + ")  mid=" +
-                       std::to_string(mid) + "  val=" +
-                       std::to_string(input[mid]);
+                       std::to_string(high) + ")  mid=" + std::to_string(mid) +
+                       "  val=" + std::to_string(input[mid]);
     if (val_lt) {
-      snap.trace_entry = "mid=" + std::to_string(mid) + "  data[mid]=" +
-                         std::to_string(input[mid]) +
+      snap.trace_entry = "mid=" + std::to_string(mid) +
+                         "  data[mid]=" + std::to_string(input[mid]) +
                          " < target -> low = mid+1";
       low = mid + 1;
     } else {
-      snap.trace_entry = "mid=" + std::to_string(mid) + "  data[mid]=" +
-                         std::to_string(input[mid]) +
+      snap.trace_entry = "mid=" + std::to_string(mid) +
+                         "  data[mid]=" + std::to_string(input[mid]) +
                          " > target -> high = mid";
       high = mid;
     }
@@ -199,7 +198,7 @@ inline auto record_binary_search(std::vector<int> input, int target)
   return rec;
 }
 
-inline auto record_bubble_sort(const std::vector<int> &input)
+inline auto record_bubble_sort(const std::vector<int>& input)
     -> AlgorithmRecording {
   AlgorithmRecording rec;
   rec.title = "Bubble Sort";
@@ -253,8 +252,8 @@ inline auto record_bubble_sort(const std::vector<int> &input)
                              std::to_string(data[j]) + ") <-> " +
                              std::to_string(j + 1) + " (" +
                              std::to_string(data[j + 1]) + ")";
-          snap.trace_entry = "swap(data[" + std::to_string(j) + "]=" +
-                             std::to_string(data[j]) + ", data[" +
+          snap.trace_entry = "swap(data[" + std::to_string(j) +
+                             "]=" + std::to_string(data[j]) + ", data[" +
                              std::to_string(j + 1) +
                              "]=" + std::to_string(data[j + 1]) + ")";
           std::swap(data[j], data[j + 1]);
@@ -266,11 +265,10 @@ inline auto record_bubble_sort(const std::vector<int> &input)
                              std::to_string(data[j]) + ") and " +
                              std::to_string(j + 1) + " (" +
                              std::to_string(data[j + 1]) + ") -> no swap";
-          snap.trace_entry = "compare(data[" + std::to_string(j) + "]=" +
-                             std::to_string(data[j]) + ", data[" +
+          snap.trace_entry = "compare(data[" + std::to_string(j) +
+                             "]=" + std::to_string(data[j]) + ", data[" +
                              std::to_string(j + 1) +
-                             "]=" + std::to_string(data[j + 1]) +
-                             ") -> skip";
+                             "]=" + std::to_string(data[j + 1]) + ") -> skip";
         }
 
         snap.variables[4].second = std::to_string(total_swaps);
@@ -302,7 +300,7 @@ inline auto record_bubble_sort(const std::vector<int> &input)
   return rec;
 }
 
-inline auto record_two_crystal_balls(const std::vector<int> &input)
+inline auto record_two_crystal_balls(const std::vector<int>& input)
     -> AlgorithmRecording {
   AlgorithmRecording rec;
   rec.title = "Two Crystal Balls";
@@ -321,8 +319,8 @@ inline auto record_two_crystal_balls(const std::vector<int> &input)
     return rec;
   }
 
-  std::size_t jump =
-      std::max<std::size_t>(1, static_cast<std::size_t>(std::sqrt(input.size())));
+  std::size_t jump = std::max<std::size_t>(
+      1, static_cast<std::size_t>(std::sqrt(input.size())));
 
   {
     StepSnapshot init;
@@ -347,8 +345,8 @@ inline auto record_two_crystal_balls(const std::vector<int> &input)
     snap.current_line = two_crystal_balls_line(true, false, false);
     snap.status_text = "Drop first ball at index " + std::to_string(i) +
                        " -> value=" + std::to_string(input[i]);
-    snap.trace_entry = "jump-check breaks[" + std::to_string(i) + "]=" +
-                       std::to_string(input[i]);
+    snap.trace_entry = "jump-check breaks[" + std::to_string(i) +
+                       "]=" + std::to_string(input[i]);
     snap.variables = {
         {"jump", std::to_string(jump)},
         {"i", std::to_string(i)},
@@ -372,8 +370,8 @@ inline auto record_two_crystal_balls(const std::vector<int> &input)
     snap.current_line = two_crystal_balls_line(false, found, false);
     snap.status_text = "Linear scan index " + std::to_string(j) +
                        " -> value=" + std::to_string(input[j]);
-    snap.trace_entry = "linear-check breaks[" + std::to_string(j) + "]=" +
-                       std::to_string(input[j]);
+    snap.trace_entry = "linear-check breaks[" + std::to_string(j) +
+                       "]=" + std::to_string(input[j]);
     snap.variables = {
         {"jump", std::to_string(jump)},
         {"start", std::to_string(start)},
@@ -384,8 +382,8 @@ inline auto record_two_crystal_balls(const std::vector<int> &input)
     if (found) {
       found_at = static_cast<int>(j);
       snap.found_index = found_at;
-      snap.status_text = "Found first breaking index at " +
-                         std::to_string(found_at) + "!";
+      snap.status_text =
+          "Found first breaking index at " + std::to_string(found_at) + "!";
       snap.trace_entry = "return " + std::to_string(found_at);
       rec.steps.push_back(std::move(snap));
       break;

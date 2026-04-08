@@ -1,18 +1,10 @@
 #pragma once
 
-#include <atomic>
-#include <chrono>
-#include <functional>
-#include <string>
-#include <thread>
-#include <vector>
-
+#include "code_panel.h"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/event.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
-
-#include "code_panel.h"
 #include "list_snapshot.h"
 #include "list_viz.h"
 #include "stack_queue_code_panel.h"
@@ -20,13 +12,20 @@
 #include "stack_queue_recorder.h"
 #include "viz_controller.h"
 
+#include <atomic>
+#include <chrono>
+#include <functional>
+#include <string>
+#include <thread>
+#include <vector>
+
 namespace viz {
 
 using StackQueueRecorderFunc =
-    std::function<ListAlgorithmRecording(const StackQueueConfig &)>;
+    std::function<ListAlgorithmRecording(const StackQueueConfig&)>;
 
-inline auto render_stack(const ListStepSnapshot &snap,
-                         const std::string &title) -> ftxui::Element {
+inline auto render_stack(const ListStepSnapshot& snap, const std::string& title)
+    -> ftxui::Element {
   using namespace ftxui;
 
   std::vector<Element> content;
@@ -55,7 +54,7 @@ inline auto render_stack(const ListStepSnapshot &snap,
   std::vector<Element> cursor_row;
 
   for (int i = 0; i < static_cast<int>(snap.nodes.size()); ++i) {
-    const auto &node = snap.nodes[i];
+    const auto& node = snap.nodes[i];
     auto col = node_color(node.state);
 
     auto box = vbox({
@@ -99,8 +98,8 @@ inline auto render_stack(const ListStepSnapshot &snap,
 
   return vbox(std::move(content)) | border | flex;
 }
-inline auto render_queue(const ListStepSnapshot &snap,
-                         const std::string &title) -> ftxui::Element {
+inline auto render_queue(const ListStepSnapshot& snap, const std::string& title)
+    -> ftxui::Element {
   using namespace ftxui;
 
   std::vector<Element> content;
@@ -129,7 +128,7 @@ inline auto render_queue(const ListStepSnapshot &snap,
   std::vector<Element> cursor_row;
 
   for (int i = 0; i < static_cast<int>(snap.nodes.size()); ++i) {
-    const auto &node = snap.nodes[i];
+    const auto& node = snap.nodes[i];
     auto col = node_color(node.state);
 
     auto box = vbox({
@@ -197,7 +196,7 @@ inline void run_stack_queue_visualizer(ListAlgorithmRecording recording,
 
   StackQueueConfigPanel config_panel;
 
-  auto apply_config = [&](const StackQueueConfigResult &result) {
+  auto apply_config = [&](const StackQueueConfigResult& result) {
     auto preserved = extract_final_values(recording);
     current_config = result.config;
     if (result.reset_initial_values) {
@@ -249,7 +248,7 @@ inline void run_stack_queue_visualizer(ListAlgorithmRecording recording,
   auto renderer = Renderer(main_container, [&]() -> Element {
     int step = ctrl.current_step.load(std::memory_order_relaxed);
     step = std::clamp(step, 0, static_cast<int>(recording.steps.size()) - 1);
-    const auto &snap = recording.steps[step];
+    const auto& snap = recording.steps[step];
 
     auto viz_pane = is_stack ? render_stack(snap, recording.title)
                              : render_queue(snap, recording.title);
@@ -278,36 +277,22 @@ inline void run_stack_queue_visualizer(ListAlgorithmRecording recording,
       right_panels.push_back(render_list_state_panel(snap, ctrl) | flex_shrink);
 
     if (trace_visible) {
-      right_panels.push_back(
-          render_list_trace_panel(recording.steps, step,
-                                  trace_scroll.load(std::memory_order_relaxed)) |
-          flex);
+      right_panels.push_back(render_list_trace_panel(
+                                 recording.steps, step,
+                                 trace_scroll.load(std::memory_order_relaxed)) |
+                             flex);
     }
 
     auto right_pane = vbox(std::move(right_panels)) | flex;
 
     auto controls = hbox({
-        text(" [Space]") | bold,
-        text(" Run ") | dim,
-        text("[N]") | bold,
-        text(" Fwd ") | dim,
-        text("[B]") | bold,
-        text(" Back ") | dim,
-        text("[R]") | bold,
-        text(" Reset ") | dim,
-        text("[+/-]") | bold,
-        text(" Speed ") | dim,
-        text("[C]") | bold,
-        text(" Config ") | dim,
-        text("[X]") | bold,
-        text(" Clear ") | dim,
-        text("[T]") | bold,
-        text(" Trace ") | dim,
-        text("[V]") | bold,
-        text(" State ") | dim,
-        text("[D]") | bold,
-        text(" Code ") | dim,
-        text("[Q]") | bold,
+        text(" [Space]") | bold, text(" Run ") | dim,   text("[N]") | bold,
+        text(" Fwd ") | dim,     text("[B]") | bold,    text(" Back ") | dim,
+        text("[R]") | bold,      text(" Reset ") | dim, text("[+/-]") | bold,
+        text(" Speed ") | dim,   text("[C]") | bold,    text(" Config ") | dim,
+        text("[X]") | bold,      text(" Clear ") | dim, text("[T]") | bold,
+        text(" Trace ") | dim,   text("[V]") | bold,    text(" State ") | dim,
+        text("[D]") | bold,      text(" Code ") | dim,  text("[Q]") | bold,
         text(" Quit ") | dim,
     });
 
@@ -421,7 +406,7 @@ inline void run_stack_viz() {
   config.op = ListOp::kNone;
   config.value = 0;
 
-  auto re_record = [](const StackQueueConfig &cfg) -> ListAlgorithmRecording {
+  auto re_record = [](const StackQueueConfig& cfg) -> ListAlgorithmRecording {
     switch (cfg.op) {
     case ListOp::kPush:
       return record_stack_push(cfg.initial_values, cfg.value);
@@ -434,8 +419,8 @@ inline void run_stack_viz() {
 
   auto recording = re_record(config);
   auto code = get_stack_code_panel(config.op);
-  run_stack_queue_visualizer(std::move(recording), code, config,
-                             re_record, /*is_stack=*/true);
+  run_stack_queue_visualizer(std::move(recording), code, config, re_record,
+                             /*is_stack=*/true);
 }
 
 inline void run_queue_viz() {
@@ -444,7 +429,7 @@ inline void run_queue_viz() {
   config.op = ListOp::kNone;
   config.value = 0;
 
-  auto re_record = [](const StackQueueConfig &cfg) -> ListAlgorithmRecording {
+  auto re_record = [](const StackQueueConfig& cfg) -> ListAlgorithmRecording {
     switch (cfg.op) {
     case ListOp::kEnqueue:
       return record_queue_enqueue(cfg.initial_values, cfg.value);
@@ -457,8 +442,8 @@ inline void run_queue_viz() {
 
   auto recording = re_record(config);
   auto code = get_queue_code_panel(config.op);
-  run_stack_queue_visualizer(std::move(recording), code, config,
-                             re_record, /*is_stack=*/false);
+  run_stack_queue_visualizer(std::move(recording), code, config, re_record,
+                             /*is_stack=*/false);
 }
 
 } // namespace viz

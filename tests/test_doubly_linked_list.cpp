@@ -1,4 +1,5 @@
 #include "doubly_linked_list.h"
+
 #include <gtest/gtest.h>
 
 TEST(DoublyPrepend, ToEmpty) {

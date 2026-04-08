@@ -1,17 +1,16 @@
 #pragma once
 
+#include "ftxui/dom/elements.hpp"
+#include "ftxui/screen/color.hpp"
+#include "snapshot.h"
+
 #include <algorithm>
 #include <string>
 #include <vector>
 
-#include "ftxui/dom/elements.hpp"
-#include "ftxui/screen/color.hpp"
-
-#include "snapshot.h"
-
 namespace viz {
 
-inline auto render_trace_panel(const std::vector<StepSnapshot> &steps,
+inline auto render_trace_panel(const std::vector<StepSnapshot>& steps,
                                int current_step, int scroll_offset,
                                int visible_lines = 8) -> ftxui::Element {
   using namespace ftxui;
@@ -44,7 +43,8 @@ inline auto render_trace_panel(const std::vector<StepSnapshot> &steps,
       auto entry_text = text(steps[i].trace_entry);
 
       if (is_current) {
-        rows.push_back(hbox({prefix, entry_text | bold | color(Color::Yellow)}));
+        rows.push_back(
+            hbox({prefix, entry_text | bold | color(Color::Yellow)}));
       } else {
         rows.push_back(hbox({prefix, entry_text | color(Color::GrayLight)}));
       }
@@ -59,10 +59,9 @@ inline auto render_trace_panel(const std::vector<StepSnapshot> &steps,
   std::string scroll_info = std::to_string(total_entries) + " entries";
   if (total_entries > visible_lines) {
     int page = effective_offset / visible_lines + 1;
-    int total_pages =
-        (total_entries + visible_lines - 1) / visible_lines;
-    scroll_info +=
-        "  (page " + std::to_string(page) + "/" + std::to_string(total_pages) + ")";
+    int total_pages = (total_entries + visible_lines - 1) / visible_lines;
+    scroll_info += "  (page " + std::to_string(page) + "/" +
+                   std::to_string(total_pages) + ")";
   }
 
   return vbox({

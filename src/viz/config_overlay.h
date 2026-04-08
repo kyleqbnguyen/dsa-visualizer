@@ -1,17 +1,16 @@
 #pragma once
 
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/event.hpp"
+#include "ftxui/dom/elements.hpp"
+#include "test_cases.h"
+
 #include <algorithm>
 #include <charconv>
 #include <random>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "ftxui/component/component.hpp"
-#include "ftxui/component/event.hpp"
-#include "ftxui/dom/elements.hpp"
-
-#include "test_cases.h"
 
 namespace viz {
 
@@ -60,8 +59,7 @@ inline auto few_unique(int size) -> std::vector<int> {
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(0,
                                           static_cast<int>(values.size()) - 1);
-  std::generate(data.begin(), data.end(),
-                [&]() { return values[dist(gen)]; });
+  std::generate(data.begin(), data.end(), [&]() { return values[dist(gen)]; });
   return data;
 }
 
@@ -83,7 +81,7 @@ inline auto clustered(int size) -> std::vector<int> {
   return data;
 }
 
-inline auto pick_target(const std::vector<int> &data) -> int {
+inline auto pick_target(const std::vector<int>& data) -> int {
   if (data.empty())
     return 0;
   std::random_device rd;
@@ -119,7 +117,7 @@ inline auto two_crystal_balls_array(int size, int break_index = -1)
   return data;
 }
 
-inline auto parse_csv_ints(const std::string &input) -> std::vector<int> {
+inline auto parse_csv_ints(const std::string& input) -> std::vector<int> {
   std::vector<int> result;
   std::istringstream stream(input);
   std::string token;
@@ -158,9 +156,8 @@ struct ConfigPanel {
                                           "Large (25)"};
   int size_selected = 1;
 
-  std::vector<std::string> dist_labels = {"Random", "Nearly sorted",
-                                          "Reversed", "Few unique",
-                                          "Clustered"};
+  std::vector<std::string> dist_labels = {"Random", "Nearly sorted", "Reversed",
+                                          "Few unique", "Clustered"};
   int dist_selected = 0;
 
   std::vector<std::string> target_labels = {"Automatic", "Manual input"};
@@ -176,13 +173,13 @@ struct ConfigPanel {
 
   std::string validation_msg;
 
-  std::function<void(const ConfigResult &)> on_apply;
+  std::function<void(const ConfigResult&)> on_apply;
   std::function<void()> on_close;
 
   ftxui::Component component;
 
-  void init(const std::string &algo, bool target_needed, int current_target,
-            std::function<void(const ConfigResult &)> apply_cb,
+  void init(const std::string& algo, bool target_needed, int current_target,
+            std::function<void(const ConfigResult&)> apply_cb,
             std::function<void()> close_cb) {
     algo_name = algo;
     needs_target = target_needed;
@@ -192,19 +189,12 @@ struct ConfigPanel {
 
     if (algo_name == "two_crystal_balls") {
       dist_labels = {
-          "Random breakpoint",
-          "Early break",
-          "Late break",
-          "Never breaks",
-          "Immediate break",
+          "Random breakpoint", "Early break",     "Late break",
+          "Never breaks",      "Immediate break",
       };
     } else {
       dist_labels = {
-          "Random",
-          "Nearly sorted",
-          "Reversed",
-          "Few unique",
-          "Clustered",
+          "Random", "Nearly sorted", "Reversed", "Few unique", "Clustered",
       };
     }
     dist_selected = 0;
@@ -212,7 +202,7 @@ struct ConfigPanel {
     test_cases = get_test_cases(algo_name);
     test_case_labels.clear();
     test_case_labels.push_back("(None)");
-    for (const auto &tc : test_cases) {
+    for (const auto& tc : test_cases) {
       test_case_labels.push_back(tc.label);
     }
     test_case_selected = 0;
@@ -256,8 +246,7 @@ struct ConfigPanel {
       bool show_manual = needs_target && (target_selected == 1);
 
       Elements content;
-      content.push_back(
-          text(" Configure: " + algo_name + " ") | bold | center);
+      content.push_back(text(" Configure: " + algo_name + " ") | bold | center);
       content.push_back(separator());
       content.push_back(tab_toggle->Render() | center);
       content.push_back(separator());
@@ -296,7 +285,7 @@ struct ConfigPanel {
         if (test_case_selected > 0 &&
             test_case_selected <= static_cast<int>(test_cases.size())) {
           content.push_back(separator());
-          auto &tc = test_cases[test_case_selected - 1];
+          auto& tc = test_cases[test_case_selected - 1];
           content.push_back(text(tc.description) | dim);
           std::string preview;
           for (int i = 0; i < static_cast<int>(tc.data.size()); ++i) {
@@ -306,8 +295,8 @@ struct ConfigPanel {
           }
           content.push_back(text("Data: [" + preview + "]") | dim);
           if (needs_target) {
-            content.push_back(
-                text("Target: " + std::to_string(tc.target)) | dim);
+            content.push_back(text("Target: " + std::to_string(tc.target)) |
+                              dim);
           }
         }
       }
@@ -330,8 +319,7 @@ struct ConfigPanel {
     });
 
     component = CatchEvent(renderer, [this](Event event) -> bool {
-      if (event == Event::Escape ||
-          event == Event::Character('c') ||
+      if (event == Event::Escape || event == Event::Character('c') ||
           event == Event::Character('C')) {
         if (on_close)
           on_close();
@@ -351,7 +339,7 @@ struct ConfigPanel {
     if (tab_selected == 1) {
       if (test_case_selected > 0 &&
           test_case_selected <= static_cast<int>(test_cases.size())) {
-        auto &tc = test_cases[test_case_selected - 1];
+        auto& tc = test_cases[test_case_selected - 1];
         result.data = tc.data;
         result.target = tc.target;
         result.test_case_label = tc.label;

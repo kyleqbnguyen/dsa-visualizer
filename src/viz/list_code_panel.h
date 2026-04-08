@@ -24,14 +24,14 @@ inline auto singly_append_code() -> CodePanel {
       .title = "singly_linked_list.h — append",
       .lines =
           {
-              "Node* node = new Node(val);", // 0
-              "Node* curr = head;",          // 1
+              "Node* node = new Node(val);",     // 0
+              "Node* curr = head;",              // 1
               "while (curr->next != nullptr) {", // 2
-              "    curr = curr->next;",      // 3
-              "}",                           // 4
-              "curr->next = node;",          // 5
-              "tail = node;",               // 6
-              "++length;",                   // 7
+              "    curr = curr->next;",          // 3
+              "}",                               // 4
+              "curr->next = node;",              // 5
+              "tail = node;",                    // 6
+              "++length;",                       // 7
           },
   };
 }
@@ -41,10 +41,10 @@ inline auto singly_insert_at_code() -> CodePanel {
       .title = "singly_linked_list.h — insert_at",
       .lines =
           {
-              "if (idx == 0) { prepend(val); return; }",    // 0
+              "if (idx == 0) { prepend(val); return; }",     // 0
               "if (idx == length) { append(val); return; }", // 1
               "Node* curr = head;",                          // 2
-              "for (size_t i = 0; i < idx-1; ++i) {",       // 3
+              "for (size_t i = 0; i < idx-1; ++i) {",        // 3
               "    curr = curr->next;",                      // 4
               "}",                                           // 5
               "Node* node = new Node(val);",                 // 6
@@ -61,14 +61,14 @@ inline auto singly_remove_at_code() -> CodePanel {
       .lines =
           {
               "if (idx == 0) { head = head->next; return; }", // 0
-              "Node* prev = head;",                            // 1
+              "Node* prev = head;",                           // 1
               "for (size_t i = 0; i < idx-1; ++i) {",         // 2
-              "    prev = prev->next;",                        // 3
-              "}",                                             // 4
-              "Node* tmp = prev->next;",                       // 5
-              "prev->next = tmp->next;",                       // 6
-              "delete tmp;",                                   // 7
-              "--length;",                                     // 8
+              "    prev = prev->next;",                       // 3
+              "}",                                            // 4
+              "Node* tmp = prev->next;",                      // 5
+              "prev->next = tmp->next;",                      // 6
+              "delete tmp;",                                  // 7
+              "--length;",                                    // 8
           },
   };
 }
@@ -78,11 +78,11 @@ inline auto singly_get_code() -> CodePanel {
       .title = "singly_linked_list.h — get",
       .lines =
           {
-              "Node* curr = head;",                    // 0
-              "for (size_t i = 0; i < idx; ++i) {",   // 1
-              "    curr = curr->next;",                // 2
-              "}",                                     // 3
-              "return curr->val;",                     // 4
+              "Node* curr = head;",                 // 0
+              "for (size_t i = 0; i < idx; ++i) {", // 1
+              "    curr = curr->next;",             // 2
+              "}",                                  // 3
+              "return curr->val;",                  // 4
           },
   };
 }
@@ -94,11 +94,11 @@ inline auto doubly_prepend_code() -> CodePanel {
       .title = "doubly_linked_list.h — prepend",
       .lines =
           {
-              "Node* node = new Node(val);", // 0
-              "node->next = head;",          // 1
+              "Node* node = new Node(val);",  // 0
+              "node->next = head;",           // 1
               "if (head) head->prev = node;", // 2
-              "head = node;",                // 3
-              "++length;",                   // 4
+              "head = node;",                 // 3
+              "++length;",                    // 4
           },
   };
 }
@@ -108,15 +108,15 @@ inline auto doubly_append_code() -> CodePanel {
       .title = "doubly_linked_list.h — append",
       .lines =
           {
-              "Node* node = new Node(val);", // 0
-              "Node* curr = head;",          // 1
+              "Node* node = new Node(val);",     // 0
+              "Node* curr = head;",              // 1
               "while (curr->next != nullptr) {", // 2
-              "    curr = curr->next;",      // 3
-              "}",                           // 4
-              "node->prev = curr;",          // 5
-              "curr->next = node;",          // 6
-              "tail = node;",               // 7
-              "++length;",                   // 8
+              "    curr = curr->next;",          // 3
+              "}",                               // 4
+              "node->prev = curr;",              // 5
+              "curr->next = node;",              // 6
+              "tail = node;",                    // 7
+              "++length;",                       // 8
           },
   };
 }
@@ -126,10 +126,10 @@ inline auto doubly_insert_at_code() -> CodePanel {
       .title = "doubly_linked_list.h — insert_at",
       .lines =
           {
-              "if (idx == 0) { prepend(val); return; }",    // 0
+              "if (idx == 0) { prepend(val); return; }",     // 0
               "if (idx == length) { append(val); return; }", // 1
               "Node* curr = head;",                          // 2
-              "for (size_t i = 0; i < idx; ++i) {",         // 3
+              "for (size_t i = 0; i < idx; ++i) {",          // 3
               "    curr = curr->next;",                      // 4
               "}",                                           // 5
               "Node* node = new Node(val);",                 // 6
@@ -147,14 +147,14 @@ inline auto doubly_remove_at_code() -> CodePanel {
       .title = "doubly_linked_list.h — remove_at",
       .lines =
           {
-              "Node* curr = head;",                          // 0
-              "for (size_t i = 0; i < idx; ++i) {",         // 1
-              "    curr = curr->next;",                      // 2
-              "}",                                           // 3
+              "Node* curr = head;",                             // 0
+              "for (size_t i = 0; i < idx; ++i) {",             // 1
+              "    curr = curr->next;",                         // 2
+              "}",                                              // 3
               "if (curr->prev) curr->prev->next = curr->next;", // 4
               "if (curr->next) curr->next->prev = curr->prev;", // 5
-              "delete curr;",                                // 6
-              "--length;",                                   // 7
+              "delete curr;",                                   // 6
+              "--length;",                                      // 7
           },
   };
 }
@@ -164,11 +164,11 @@ inline auto doubly_get_code() -> CodePanel {
       .title = "doubly_linked_list.h — get",
       .lines =
           {
-              "Node* curr = head;",                    // 0
-              "for (size_t i = 0; i < idx; ++i) {",   // 1
-              "    curr = curr->next;",                // 2
-              "}",                                     // 3
-              "return curr->val;",                     // 4
+              "Node* curr = head;",                 // 0
+              "for (size_t i = 0; i < idx; ++i) {", // 1
+              "    curr = curr->next;",             // 2
+              "}",                                  // 3
+              "return curr->val;",                  // 4
           },
   };
 }

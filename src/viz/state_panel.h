@@ -1,19 +1,17 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "ftxui/dom/elements.hpp"
 #include "ftxui/screen/color.hpp"
-
 #include "snapshot.h"
 #include "viz_controller.h"
 
+#include <string>
+#include <vector>
+
 namespace viz {
 
-inline auto render_state_panel(const StepSnapshot &snap,
-                               const VizController &ctrl)
-    -> ftxui::Element {
+inline auto render_state_panel(const StepSnapshot& snap,
+                               const VizController& ctrl) -> ftxui::Element {
   using namespace ftxui;
 
   std::vector<Element> rows;
@@ -49,11 +47,11 @@ inline auto render_state_panel(const StepSnapshot &snap,
   }
   rows.push_back(text("State: " + mode_str) | color(mode_color));
 
-  rows.push_back(text("Speed: " +
-                       std::to_string(
-                           ctrl.speed_ms.load(std::memory_order_relaxed)) +
-                       "ms") |
-                 dim);
+  rows.push_back(
+      text("Speed: " +
+           std::to_string(ctrl.speed_ms.load(std::memory_order_relaxed)) +
+           "ms") |
+      dim);
 
   if (!ctrl.test_case_label.empty()) {
     rows.push_back(separator());
@@ -67,7 +65,7 @@ inline auto render_state_panel(const StepSnapshot &snap,
   if (snap.variables.empty()) {
     rows.push_back(text("  (none)") | dim);
   } else {
-    for (const auto &[name, value] : snap.variables) {
+    for (const auto& [name, value] : snap.variables) {
       rows.push_back(hbox({
           text("  " + name + " = ") | dim,
           text(value) | bold | color(Color::Yellow),

@@ -1,4 +1,5 @@
 #include "linear_search.h"
+
 #include <gtest/gtest.h>
 #include <vector>
 

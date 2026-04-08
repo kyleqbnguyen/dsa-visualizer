@@ -1,15 +1,15 @@
 #pragma once
 
+#include "list_snapshot.h"
+
 #include <string>
 #include <vector>
-
-#include "list_snapshot.h"
 
 namespace viz {
 
 namespace detail {
 
-inline auto snap_list(const std::vector<int> &vals, bool doubly)
+inline auto snap_list(const std::vector<int>& vals, bool doubly)
     -> std::vector<ListNodeSnap> {
   std::vector<ListNodeSnap> nodes;
   for (size_t i = 0; i < vals.size(); ++i) {
@@ -29,8 +29,8 @@ inline auto snap_list(const std::vector<int> &vals, bool doubly)
 //  Idle recorder (no operation selected)
 // ──────────────────────────────────────────
 
-inline auto record_idle(const std::vector<int> &initial,
-                        const std::string &title, bool doubly)
+inline auto record_idle(const std::vector<int>& initial,
+                        const std::string& title, bool doubly)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = title;
@@ -46,12 +46,13 @@ inline auto record_idle(const std::vector<int> &initial,
   return rec;
 }
 
-inline auto record_stack_queue_idle(const std::vector<int> &initial,
-                                    const std::string &title)
+inline auto record_stack_queue_idle(const std::vector<int>& initial,
+                                    const std::string& title)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = title;
-  rec.algorithm_name = title.find("Stack") != std::string::npos ? "stack" : "queue";
+  rec.algorithm_name =
+      title.find("Stack") != std::string::npos ? "stack" : "queue";
   rec.op = ListOp::kNone;
 
   ListStepSnapshot snap;
@@ -67,7 +68,7 @@ inline auto record_stack_queue_idle(const std::vector<int> &initial,
 //  Singly Linked List recorders
 // ──────────────────────────────────────────
 
-inline auto record_singly_prepend(const std::vector<int> &initial, int val)
+inline auto record_singly_prepend(const std::vector<int>& initial, int val)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Singly Linked List — Prepend";
@@ -141,7 +142,7 @@ inline auto record_singly_prepend(const std::vector<int> &initial, int val)
   return rec;
 }
 
-inline auto record_singly_append(const std::vector<int> &initial, int val)
+inline auto record_singly_append(const std::vector<int>& initial, int val)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Singly Linked List — Append";
@@ -152,8 +153,7 @@ inline auto record_singly_append(const std::vector<int> &initial, int val)
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
     snap.status_text = "Initial list";
-    snap.trace_entry =
-        "begin append(val=" + std::to_string(val) + ")";
+    snap.trace_entry = "begin append(val=" + std::to_string(val) + ")";
     snap.current_line = -1;
     rec.steps.push_back(std::move(snap));
   }
@@ -170,8 +170,7 @@ inline auto record_singly_append(const std::vector<int> &initial, int val)
       snap.trace_entry = "curr = head";
       snap.current_line = 1;
     } else {
-      snap.status_text =
-          "Traverse to node " + std::to_string(i);
+      snap.status_text = "Traverse to node " + std::to_string(i);
       snap.trace_entry = "curr = curr->next";
       snap.current_line = 3;
     }
@@ -189,8 +188,7 @@ inline auto record_singly_append(const std::vector<int> &initial, int val)
       snap.nodes[result.size() - 2].has_next = false;
     }
     snap.status_text = "Create new node with value " + std::to_string(val);
-    snap.trace_entry =
-        "Node* node = new Node(" + std::to_string(val) + ")";
+    snap.trace_entry = "Node* node = new Node(" + std::to_string(val) + ")";
     snap.current_line = 0;
     snap.variables = {{"val", std::to_string(val)}};
     rec.steps.push_back(std::move(snap));
@@ -225,7 +223,7 @@ inline auto record_singly_append(const std::vector<int> &initial, int val)
   return rec;
 }
 
-inline auto record_singly_insert_at(const std::vector<int> &initial,
+inline auto record_singly_insert_at(const std::vector<int>& initial,
                                     size_t index, int val)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
@@ -251,8 +249,7 @@ inline auto record_singly_insert_at(const std::vector<int> &initial,
     snap.nodes = detail::snap_list(initial, false);
     snap.nodes[static_cast<int>(i)].state = ListNodeState::kActive;
     snap.status_text = "Traverse: curr at index " + std::to_string(i);
-    snap.trace_entry =
-        (i == 0) ? "curr = head" : "curr = curr->next";
+    snap.trace_entry = (i == 0) ? "curr = head" : "curr = curr->next";
     snap.current_line = (i == 0) ? 2 : 4;
     snap.variables = {{"i", std::to_string(i)},
                       {"idx", std::to_string(index)},
@@ -271,8 +268,7 @@ inline auto record_singly_insert_at(const std::vector<int> &initial,
       snap.nodes[static_cast<int>(index - 1)].has_next = false;
     }
     snap.status_text = "Create new node with value " + std::to_string(val);
-    snap.trace_entry =
-        "Node* node = new Node(" + std::to_string(val) + ")";
+    snap.trace_entry = "Node* node = new Node(" + std::to_string(val) + ")";
     snap.current_line = 6;
     snap.variables = {{"idx", std::to_string(index)},
                       {"val", std::to_string(val)}};
@@ -310,9 +306,8 @@ inline auto record_singly_insert_at(const std::vector<int> &initial,
   return rec;
 }
 
-inline auto record_singly_remove_at(const std::vector<int> &initial,
-                                    size_t index)
-    -> ListAlgorithmRecording {
+inline auto record_singly_remove_at(const std::vector<int>& initial,
+                                    size_t index) -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Singly Linked List — Remove At";
   rec.algorithm_name = "singly_linked_list";
@@ -322,8 +317,7 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
     snap.status_text = "Initial list";
-    snap.trace_entry =
-        "begin remove_at(idx=" + std::to_string(index) + ")";
+    snap.trace_entry = "begin remove_at(idx=" + std::to_string(index) + ")";
     snap.current_line = -1;
     snap.variables = {{"idx", std::to_string(index)}};
     rec.steps.push_back(std::move(snap));
@@ -337,8 +331,7 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
       snap.status_text = "Remove head node";
       snap.trace_entry = "head = head->next";
       snap.current_line = 0;
-      snap.variables = {{"idx", "0"},
-                        {"removed", std::to_string(initial[0])}};
+      snap.variables = {{"idx", "0"}, {"removed", std::to_string(initial[0])}};
       rec.steps.push_back(std::move(snap));
     }
   } else {
@@ -347,8 +340,7 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
       snap.nodes = detail::snap_list(initial, false);
       snap.nodes[static_cast<int>(i)].state = ListNodeState::kActive;
       snap.status_text = "Traverse: prev at index " + std::to_string(i);
-      snap.trace_entry =
-          (i == 0) ? "prev = head" : "prev = prev->next";
+      snap.trace_entry = (i == 0) ? "prev = head" : "prev = prev->next";
       snap.current_line = (i == 0) ? 1 : 3;
       snap.variables = {{"i", std::to_string(i)},
                         {"idx", std::to_string(index)}};
@@ -401,7 +393,7 @@ inline auto record_singly_remove_at(const std::vector<int> &initial,
   return rec;
 }
 
-inline auto record_singly_get(const std::vector<int> &initial, size_t index)
+inline auto record_singly_get(const std::vector<int>& initial, size_t index)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Singly Linked List — Get";
@@ -412,8 +404,7 @@ inline auto record_singly_get(const std::vector<int> &initial, size_t index)
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
     snap.status_text = "Initial list";
-    snap.trace_entry =
-        "begin get(idx=" + std::to_string(index) + ")";
+    snap.trace_entry = "begin get(idx=" + std::to_string(index) + ")";
     snap.current_line = -1;
     snap.variables = {{"idx", std::to_string(index)}};
     rec.steps.push_back(std::move(snap));
@@ -426,21 +417,18 @@ inline auto record_singly_get(const std::vector<int> &initial, size_t index)
 
     if (i == index) {
       snap.nodes[static_cast<int>(i)].state = ListNodeState::kFound;
-      snap.status_text = "Found value " +
-                         std::to_string(initial[i]) + " at index " +
-                         std::to_string(i);
-      snap.trace_entry = "return curr->val (" +
-                         std::to_string(initial[i]) + ")";
+      snap.status_text = "Found value " + std::to_string(initial[i]) +
+                         " at index " + std::to_string(i);
+      snap.trace_entry =
+          "return curr->val (" + std::to_string(initial[i]) + ")";
       snap.current_line = 4;
     } else {
       snap.nodes[static_cast<int>(i)].state = ListNodeState::kActive;
       snap.status_text = "Traverse: curr at index " + std::to_string(i);
-      snap.trace_entry =
-          (i == 0) ? "curr = head" : "curr = curr->next";
+      snap.trace_entry = (i == 0) ? "curr = head" : "curr = curr->next";
       snap.current_line = (i == 0) ? 0 : 2;
     }
-    snap.variables = {{"i", std::to_string(i)},
-                      {"idx", std::to_string(index)}};
+    snap.variables = {{"i", std::to_string(i)}, {"idx", std::to_string(index)}};
     rec.steps.push_back(std::move(snap));
   }
 
@@ -449,19 +437,16 @@ inline auto record_singly_get(const std::vector<int> &initial, size_t index)
     snap.nodes = detail::snap_list(initial, false);
     if (index < initial.size()) {
       snap.nodes[static_cast<int>(index)].state = ListNodeState::kFound;
-      snap.status_text =
-          "Result: " + std::to_string(initial[index]);
-      snap.trace_entry =
-          "return " + std::to_string(initial[index]);
+      snap.status_text = "Result: " + std::to_string(initial[index]);
+      snap.trace_entry = "return " + std::to_string(initial[index]);
     } else {
       snap.status_text = "Index out of bounds";
       snap.trace_entry = "throw out_of_range";
     }
     snap.current_line = 4;
-    snap.variables = {
-        {"result",
-         index < initial.size() ? std::to_string(initial[index])
-                                : "error"}};
+    snap.variables = {{"result", index < initial.size()
+                                     ? std::to_string(initial[index])
+                                     : "error"}};
     rec.steps.push_back(std::move(snap));
   }
 
@@ -472,7 +457,7 @@ inline auto record_singly_get(const std::vector<int> &initial, size_t index)
 //  Doubly Linked List recorders
 // ──────────────────────────────────────────
 
-inline auto record_doubly_prepend(const std::vector<int> &initial, int val)
+inline auto record_doubly_prepend(const std::vector<int>& initial, int val)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Doubly Linked List — Prepend";
@@ -549,7 +534,7 @@ inline auto record_doubly_prepend(const std::vector<int> &initial, int val)
   return rec;
 }
 
-inline auto record_doubly_append(const std::vector<int> &initial, int val)
+inline auto record_doubly_append(const std::vector<int>& initial, int val)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Doubly Linked List — Append";
@@ -593,8 +578,7 @@ inline auto record_doubly_append(const std::vector<int> &initial, int val)
       snap.nodes[result.size() - 2].has_next = false;
     }
     snap.status_text = "Create new node with value " + std::to_string(val);
-    snap.trace_entry =
-        "Node* node = new Node(" + std::to_string(val) + ")";
+    snap.trace_entry = "Node* node = new Node(" + std::to_string(val) + ")";
     snap.current_line = 0;
     snap.variables = {{"val", std::to_string(val)}};
     rec.steps.push_back(std::move(snap));
@@ -629,7 +613,7 @@ inline auto record_doubly_append(const std::vector<int> &initial, int val)
   return rec;
 }
 
-inline auto record_doubly_insert_at(const std::vector<int> &initial,
+inline auto record_doubly_insert_at(const std::vector<int>& initial,
                                     size_t index, int val)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
@@ -677,8 +661,7 @@ inline auto record_doubly_insert_at(const std::vector<int> &initial,
       snap.nodes[static_cast<int>(index) + 1].has_prev = false;
     }
     snap.status_text = "Create new node with value " + std::to_string(val);
-    snap.trace_entry =
-        "Node* node = new Node(" + std::to_string(val) + ")";
+    snap.trace_entry = "Node* node = new Node(" + std::to_string(val) + ")";
     snap.current_line = 6;
     snap.variables = {{"idx", std::to_string(index)},
                       {"val", std::to_string(val)}};
@@ -715,9 +698,8 @@ inline auto record_doubly_insert_at(const std::vector<int> &initial,
   return rec;
 }
 
-inline auto record_doubly_remove_at(const std::vector<int> &initial,
-                                    size_t index)
-    -> ListAlgorithmRecording {
+inline auto record_doubly_remove_at(const std::vector<int>& initial,
+                                    size_t index) -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Doubly Linked List — Remove At";
   rec.algorithm_name = "doubly_linked_list";
@@ -727,8 +709,7 @@ inline auto record_doubly_remove_at(const std::vector<int> &initial,
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, true);
     snap.status_text = "Initial list";
-    snap.trace_entry =
-        "begin remove_at(idx=" + std::to_string(index) + ")";
+    snap.trace_entry = "begin remove_at(idx=" + std::to_string(index) + ")";
     snap.current_line = -1;
     snap.variables = {{"idx", std::to_string(index)}};
     rec.steps.push_back(std::move(snap));
@@ -741,8 +722,7 @@ inline auto record_doubly_remove_at(const std::vector<int> &initial,
     snap.status_text = "Traverse: curr at index " + std::to_string(i);
     snap.trace_entry = (i == 0) ? "curr = head" : "curr = curr->next";
     snap.current_line = (i == 0) ? 0 : 2;
-    snap.variables = {{"i", std::to_string(i)},
-                      {"idx", std::to_string(index)}};
+    snap.variables = {{"i", std::to_string(i)}, {"idx", std::to_string(index)}};
     rec.steps.push_back(std::move(snap));
   }
 
@@ -786,7 +766,7 @@ inline auto record_doubly_remove_at(const std::vector<int> &initial,
   return rec;
 }
 
-inline auto record_doubly_get(const std::vector<int> &initial, size_t index)
+inline auto record_doubly_get(const std::vector<int>& initial, size_t index)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Doubly Linked List — Get";
@@ -809,11 +789,10 @@ inline auto record_doubly_get(const std::vector<int> &initial, size_t index)
     snap.nodes = detail::snap_list(initial, true);
     if (i == index) {
       snap.nodes[static_cast<int>(i)].state = ListNodeState::kFound;
-      snap.status_text = "Found value " +
-                         std::to_string(initial[i]) + " at index " +
-                         std::to_string(i);
-      snap.trace_entry = "return curr->val (" +
-                         std::to_string(initial[i]) + ")";
+      snap.status_text = "Found value " + std::to_string(initial[i]) +
+                         " at index " + std::to_string(i);
+      snap.trace_entry =
+          "return curr->val (" + std::to_string(initial[i]) + ")";
       snap.current_line = 4;
     } else {
       snap.nodes[static_cast<int>(i)].state = ListNodeState::kActive;
@@ -821,8 +800,7 @@ inline auto record_doubly_get(const std::vector<int> &initial, size_t index)
       snap.trace_entry = (i == 0) ? "curr = head" : "curr = curr->next";
       snap.current_line = (i == 0) ? 0 : 2;
     }
-    snap.variables = {{"i", std::to_string(i)},
-                      {"idx", std::to_string(index)}};
+    snap.variables = {{"i", std::to_string(i)}, {"idx", std::to_string(index)}};
     rec.steps.push_back(std::move(snap));
   }
 
@@ -838,10 +816,9 @@ inline auto record_doubly_get(const std::vector<int> &initial, size_t index)
       snap.trace_entry = "throw out_of_range";
     }
     snap.current_line = 4;
-    snap.variables = {
-        {"result",
-         index < initial.size() ? std::to_string(initial[index])
-                                : "error"}};
+    snap.variables = {{"result", index < initial.size()
+                                     ? std::to_string(initial[index])
+                                     : "error"}};
     rec.steps.push_back(std::move(snap));
   }
 

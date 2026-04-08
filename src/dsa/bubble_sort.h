@@ -5,7 +5,7 @@
 namespace dsa {
 
 // Sort data in place in ascending order.
-inline void bubble_sort(std::vector<int> &data) {
+inline void bubble_sort(std::vector<int>& data) {
   // TODO
   (void)data;
 }

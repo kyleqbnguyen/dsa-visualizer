@@ -1,9 +1,8 @@
-#include <algorithm>
-#include <vector>
-
-#include <gtest/gtest.h>
-
 #include "algo_recorder.h"
+
+#include <algorithm>
+#include <gtest/gtest.h>
+#include <vector>
 
 TEST(VizRecordings, LinearSearchRecordingHasTerminalResult) {
   std::vector<int> data = {4, 8, 15, 16, 23, 42};
@@ -29,8 +28,8 @@ TEST(VizRecordings, BubbleSortRecordingEndsSorted) {
   auto rec = viz::record_bubble_sort(data);
 
   ASSERT_FALSE(rec.steps.empty());
-  EXPECT_TRUE(
-      std::is_sorted(rec.steps.back().data.begin(), rec.steps.back().data.end()));
+  EXPECT_TRUE(std::is_sorted(rec.steps.back().data.begin(),
+                             rec.steps.back().data.end()));
   EXPECT_EQ(rec.steps.back().sorted_boundary, 0);
 }
 

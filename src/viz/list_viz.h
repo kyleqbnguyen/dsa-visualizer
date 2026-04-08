@@ -1,23 +1,22 @@
 #pragma once
 
+#include "code_panel.h"
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/event.hpp"
+#include "ftxui/component/screen_interactive.hpp"
+#include "ftxui/dom/elements.hpp"
+#include "list_code_panel.h"
+#include "list_config.h"
+#include "list_recorder.h"
+#include "list_snapshot.h"
+#include "viz_controller.h"
+
 #include <atomic>
 #include <chrono>
 #include <functional>
 #include <string>
 #include <thread>
 #include <vector>
-
-#include "ftxui/component/component.hpp"
-#include "ftxui/component/event.hpp"
-#include "ftxui/component/screen_interactive.hpp"
-#include "ftxui/dom/elements.hpp"
-
-#include "code_panel.h"
-#include "list_code_panel.h"
-#include "list_config.h"
-#include "list_recorder.h"
-#include "list_snapshot.h"
-#include "viz_controller.h"
 
 namespace viz {
 
@@ -51,9 +50,8 @@ inline auto node_color(ListNodeState state) -> ftxui::Color {
   return list_colors::kNormal;
 }
 
-inline auto render_list(const ListStepSnapshot &snap,
-                        const std::string &title, bool is_doubly)
-    -> ftxui::Element {
+inline auto render_list(const ListStepSnapshot& snap, const std::string& title,
+                        bool is_doubly) -> ftxui::Element {
   using namespace ftxui;
 
   std::vector<Element> content;
@@ -75,7 +73,7 @@ inline auto render_list(const ListStepSnapshot &snap,
   std::vector<Element> columns;
 
   for (int i = 0; i < static_cast<int>(snap.nodes.size()); ++i) {
-    const auto &node = snap.nodes[i];
+    const auto& node = snap.nodes[i];
     auto col = node_color(node.state);
 
     auto box = vbox({
@@ -140,7 +138,7 @@ inline auto render_list(const ListStepSnapshot &snap,
   return vbox(std::move(content)) | border | flex;
 }
 
-inline auto render_list_trace_panel(const std::vector<ListStepSnapshot> &steps,
+inline auto render_list_trace_panel(const std::vector<ListStepSnapshot>& steps,
                                     int current_step, int scroll_offset,
                                     int visible_lines = 8) -> ftxui::Element {
   using namespace ftxui;
@@ -172,8 +170,7 @@ inline auto render_list_trace_panel(const std::vector<ListStepSnapshot> &steps,
         rows.push_back(
             hbox({prefix, entry_text | bold | color(Color::Yellow)}));
       } else {
-        rows.push_back(
-            hbox({prefix, entry_text | color(Color::GrayLight)}));
+        rows.push_back(hbox({prefix, entry_text | color(Color::GrayLight)}));
       }
     }
     entry_idx++;
@@ -194,8 +191,8 @@ inline auto render_list_trace_panel(const std::vector<ListStepSnapshot> &steps,
          border;
 }
 
-inline auto render_list_state_panel(const ListStepSnapshot &snap,
-                                    const VizController &ctrl)
+inline auto render_list_state_panel(const ListStepSnapshot& snap,
+                                    const VizController& ctrl)
     -> ftxui::Element {
   using namespace ftxui;
 
@@ -204,9 +201,9 @@ inline auto render_list_state_panel(const ListStepSnapshot &snap,
   int step = ctrl.current_step.load(std::memory_order_relaxed);
   int total = ctrl.total_steps.load(std::memory_order_relaxed);
   int last_step = (total > 0) ? total - 1 : 0;
-  rows.push_back(text("Step " + std::to_string(step) + " / " +
-                       std::to_string(last_step)) |
-                 bold);
+  rows.push_back(
+      text("Step " + std::to_string(step) + " / " + std::to_string(last_step)) |
+      bold);
 
   std::string mode_str;
   Color mode_color;
@@ -231,16 +228,16 @@ inline auto render_list_state_panel(const ListStepSnapshot &snap,
     }
   }
   rows.push_back(text("State: " + mode_str) | color(mode_color));
-  rows.push_back(text("Speed: " +
-                       std::to_string(
-                           ctrl.speed_ms.load(std::memory_order_relaxed)) +
-                       "ms") |
-                 dim);
+  rows.push_back(
+      text("Speed: " +
+           std::to_string(ctrl.speed_ms.load(std::memory_order_relaxed)) +
+           "ms") |
+      dim);
 
   if (!ctrl.test_case_label.empty()) {
     rows.push_back(separator());
-    rows.push_back(
-        text("Case: " + ctrl.test_case_label) | bold | color(Color::Cyan));
+    rows.push_back(text("Case: " + ctrl.test_case_label) | bold |
+                   color(Color::Cyan));
   }
 
   rows.push_back(separator());
@@ -248,7 +245,7 @@ inline auto render_list_state_panel(const ListStepSnapshot &snap,
   if (snap.variables.empty()) {
     rows.push_back(text("  (none)") | dim);
   } else {
-    for (const auto &[name, value] : snap.variables) {
+    for (const auto& [name, value] : snap.variables) {
       rows.push_back(hbox({
           text("  " + name + " = ") | dim,
           text(value) | bold | color(Color::Yellow),
@@ -264,26 +261,24 @@ inline auto render_list_state_panel(const ListStepSnapshot &snap,
          border;
 }
 
-inline auto extract_final_values(const ListAlgorithmRecording &rec)
+inline auto extract_final_values(const ListAlgorithmRecording& rec)
     -> std::vector<int> {
   if (rec.steps.empty())
     return {};
-  const auto &nodes = rec.steps.back().nodes;
+  const auto& nodes = rec.steps.back().nodes;
   std::vector<int> values;
   values.reserve(nodes.size());
-  for (const auto &n : nodes)
+  for (const auto& n : nodes)
     values.push_back(n.value);
   return values;
 }
 
 using ListRecorderFunc =
-    std::function<ListAlgorithmRecording(const ListConfig &)>;
+    std::function<ListAlgorithmRecording(const ListConfig&)>;
 
 inline void run_list_visualizer(ListAlgorithmRecording recording,
-                                CodePanel code,
-                                ListConfig current_config,
-                                ListRecorderFunc re_record,
-                                bool is_doubly) {
+                                CodePanel code, ListConfig current_config,
+                                ListRecorderFunc re_record, bool is_doubly) {
   using namespace ftxui;
 
   if (recording.steps.empty())
@@ -302,7 +297,7 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
 
   ListConfigPanel config_panel;
 
-  auto apply_config = [&](const ListConfigResult &result) {
+  auto apply_config = [&](const ListConfigResult& result) {
     auto preserved = extract_final_values(recording);
     current_config = result.config;
     if (result.reset_initial_values) {
@@ -361,9 +356,8 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
 
   auto renderer = Renderer(main_container, [&]() -> Element {
     int step = ctrl.current_step.load(std::memory_order_relaxed);
-    step =
-        std::clamp(step, 0, static_cast<int>(recording.steps.size()) - 1);
-    const auto &snap = recording.steps[step];
+    step = std::clamp(step, 0, static_cast<int>(recording.steps.size()) - 1);
+    const auto& snap = recording.steps[step];
 
     auto viz_pane = render_list(snap, recording.title, is_doubly);
 
@@ -384,23 +378,20 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
     Elements right_panels;
 
     if (code_visible) {
-      right_panels.push_back(
-          code.render(snap.current_line, false) | flex_grow);
+      right_panels.push_back(code.render(snap.current_line, false) | flex_grow);
     } else {
       right_panels.push_back(code.render(snap.current_line, true));
     }
 
     if (state_visible) {
-      right_panels.push_back(
-          render_list_state_panel(snap, ctrl) | flex_shrink);
+      right_panels.push_back(render_list_state_panel(snap, ctrl) | flex_shrink);
     }
 
     if (trace_visible) {
-      right_panels.push_back(
-          render_list_trace_panel(
-              recording.steps, step,
-              trace_scroll.load(std::memory_order_relaxed)) |
-          flex);
+      right_panels.push_back(render_list_trace_panel(
+                                 recording.steps, step,
+                                 trace_scroll.load(std::memory_order_relaxed)) |
+                             flex);
     }
 
     auto right_pane = vbox(std::move(right_panels)) | flex;
@@ -430,8 +421,7 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
         text(" Quit ") | dim,
         separator(),
         text(" " +
-             std::to_string(
-                 ctrl.speed_ms.load(std::memory_order_relaxed)) +
+             std::to_string(ctrl.speed_ms.load(std::memory_order_relaxed)) +
              "ms ") |
             dim,
     });
@@ -512,8 +502,7 @@ inline void run_list_visualizer(ListAlgorithmRecording recording,
       return true;
     }
     if (event == Event::Character('c') || event == Event::Character('C')) {
-      ctrl.mode.store(VizController::Mode::PAUSED,
-                      std::memory_order_relaxed);
+      ctrl.mode.store(VizController::Mode::PAUSED, std::memory_order_relaxed);
       config_open = true;
       screen.Post(Event::Custom);
       return true;
@@ -549,7 +538,7 @@ inline void run_singly_linked_list_viz(std::vector<int> initial) {
   config.value = 0;
   config.index = 0;
 
-  auto recorder = [](const ListConfig &cfg) -> ListAlgorithmRecording {
+  auto recorder = [](const ListConfig& cfg) -> ListAlgorithmRecording {
     switch (cfg.op) {
     case ListOp::kPrepend:
       return record_singly_prepend(cfg.initial_values, cfg.value);
@@ -557,8 +546,7 @@ inline void run_singly_linked_list_viz(std::vector<int> initial) {
       return record_singly_append(cfg.initial_values, cfg.value);
     case ListOp::kInsertAt:
       return record_singly_insert_at(cfg.initial_values,
-                                     static_cast<size_t>(cfg.index),
-                                     cfg.value);
+                                     static_cast<size_t>(cfg.index), cfg.value);
     case ListOp::kRemoveAt:
       return record_singly_remove_at(cfg.initial_values,
                                      static_cast<size_t>(cfg.index));
@@ -582,7 +570,7 @@ inline void run_doubly_linked_list_viz(std::vector<int> initial) {
   config.value = 0;
   config.index = 0;
 
-  auto recorder = [](const ListConfig &cfg) -> ListAlgorithmRecording {
+  auto recorder = [](const ListConfig& cfg) -> ListAlgorithmRecording {
     switch (cfg.op) {
     case ListOp::kPrepend:
       return record_doubly_prepend(cfg.initial_values, cfg.value);
@@ -590,8 +578,7 @@ inline void run_doubly_linked_list_viz(std::vector<int> initial) {
       return record_doubly_append(cfg.initial_values, cfg.value);
     case ListOp::kInsertAt:
       return record_doubly_insert_at(cfg.initial_values,
-                                     static_cast<size_t>(cfg.index),
-                                     cfg.value);
+                                     static_cast<size_t>(cfg.index), cfg.value);
     case ListOp::kRemoveAt:
       return record_doubly_remove_at(cfg.initial_values,
                                      static_cast<size_t>(cfg.index));

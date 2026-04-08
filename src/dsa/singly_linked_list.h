@@ -6,7 +6,7 @@ namespace dsa {
 
 template <typename T> struct SinglyNode {
   T val;
-  SinglyNode<T> *next = nullptr;
+  SinglyNode<T>* next = nullptr;
   explicit SinglyNode(T v) : val(v) {}
 };
 
@@ -15,16 +15,16 @@ public:
   SinglyLinkedList() = default;
 
   ~SinglyLinkedList() {
-    auto *curr = head_;
+    auto* curr = head_;
     while (curr) {
-      auto *tmp = curr;
+      auto* tmp = curr;
       curr = curr->next;
       delete tmp;
     }
   }
 
-  SinglyLinkedList(const SinglyLinkedList &) = delete;
-  SinglyLinkedList &operator=(const SinglyLinkedList &) = delete;
+  SinglyLinkedList(const SinglyLinkedList&) = delete;
+  SinglyLinkedList& operator=(const SinglyLinkedList&) = delete;
 
   void prepend(T val) {
     // TODO: implement
@@ -50,8 +50,8 @@ public:
   size_t length() const { return length_; }
 
 private:
-  SinglyNode<T> *head_ = nullptr;
-  SinglyNode<T> *tail_ = nullptr;
+  SinglyNode<T>* head_ = nullptr;
+  SinglyNode<T>* tail_ = nullptr;
   size_t length_ = 0;
 };
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "list_recorder.h"
 #include "list_snapshot.h"
+
+#include <string>
+#include <vector>
 
 namespace viz {
 
@@ -12,7 +12,7 @@ namespace viz {
 //  Stack recorders
 // ──────────────────────────────────────────
 
-inline auto record_stack_push(const std::vector<int> &initial, int val)
+inline auto record_stack_push(const std::vector<int>& initial, int val)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Stack — Push";
@@ -52,8 +52,8 @@ inline auto record_stack_push(const std::vector<int> &initial, int val)
     with_new.push_back(val);
     snap.nodes = detail::snap_list(with_new, false);
     snap.nodes.back().state = ListNodeState::kDone;
-    snap.status_text = "Pushed " + std::to_string(val) +
-                       ".  New TOP = " + std::to_string(val);
+    snap.status_text =
+        "Pushed " + std::to_string(val) + ".  New TOP = " + std::to_string(val);
     snap.trace_entry = "++size_  →  size=" + std::to_string(new_size);
     snap.current_line = 1;
     snap.variables = {{"val", std::to_string(val)},
@@ -64,7 +64,7 @@ inline auto record_stack_push(const std::vector<int> &initial, int val)
   return rec;
 }
 
-inline auto record_stack_pop(const std::vector<int> &initial)
+inline auto record_stack_pop(const std::vector<int>& initial)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Stack — Pop";
@@ -98,7 +98,8 @@ inline auto record_stack_pop(const std::vector<int> &initial)
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
     snap.nodes.back().state = ListNodeState::kActive;
-    snap.status_text = "TOP = " + std::to_string(top_val) + "  (reading before removal)";
+    snap.status_text =
+        "TOP = " + std::to_string(top_val) + "  (reading before removal)";
     snap.trace_entry = "T val = data_.back()  →  " + std::to_string(top_val);
     snap.current_line = 0;
     snap.variables = {{"val", std::to_string(top_val)},
@@ -138,7 +139,7 @@ inline auto record_stack_pop(const std::vector<int> &initial)
 //  Queue recorders
 // ──────────────────────────────────────────
 
-inline auto record_queue_enqueue(const std::vector<int> &initial, int val)
+inline auto record_queue_enqueue(const std::vector<int>& initial, int val)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Queue — Enqueue";
@@ -190,7 +191,7 @@ inline auto record_queue_enqueue(const std::vector<int> &initial, int val)
   return rec;
 }
 
-inline auto record_queue_dequeue(const std::vector<int> &initial)
+inline auto record_queue_dequeue(const std::vector<int>& initial)
     -> ListAlgorithmRecording {
   ListAlgorithmRecording rec;
   rec.title = "Queue — Dequeue";
@@ -224,7 +225,8 @@ inline auto record_queue_dequeue(const std::vector<int> &initial)
     ListStepSnapshot snap;
     snap.nodes = detail::snap_list(initial, false);
     snap.nodes.front().state = ListNodeState::kActive;
-    snap.status_text = "FRONT = " + std::to_string(front_val) + "  (reading before removal)";
+    snap.status_text =
+        "FRONT = " + std::to_string(front_val) + "  (reading before removal)";
     snap.trace_entry = "T val = data_.front()  →  " + std::to_string(front_val);
     snap.current_line = 0;
     snap.variables = {{"val", std::to_string(front_val)},

@@ -1,13 +1,12 @@
 #pragma once
 
+#include "ftxui/dom/elements.hpp"
+#include "ftxui/screen/color.hpp"
+#include "snapshot.h"
+
 #include <algorithm>
 #include <string>
 #include <vector>
-
-#include "ftxui/dom/elements.hpp"
-#include "ftxui/screen/color.hpp"
-
-#include "snapshot.h"
 
 namespace viz {
 
@@ -39,9 +38,8 @@ inline auto make_bar(int value, int max_value, int max_height,
   return ftxui::vbox(std::move(rows)) | ftxui::center;
 }
 
-inline auto render_array(const StepSnapshot &snap,
-                         const std::string &title = {},
-                         int target = -1,
+inline auto render_array(const StepSnapshot& snap,
+                         const std::string& title = {}, int target = -1,
                          bool is_search = false) -> ftxui::Element {
 
   std::vector<ftxui::Element> content;
@@ -75,36 +73,32 @@ inline auto render_array(const StepSnapshot &snap,
         bar_color = colors::kSorted;
     }
 
-    bars.push_back(
-        make_bar(snap.data[i], max_val, kMaxBarHeight, bar_color));
+    bars.push_back(make_bar(snap.data[i], max_val, kMaxBarHeight, bar_color));
     bars.push_back(ftxui::text(" "));
   }
 
-  content.push_back(
-      ftxui::hbox(std::move(bars)) | ftxui::center | ftxui::flex);
+  content.push_back(ftxui::hbox(std::move(bars)) | ftxui::center | ftxui::flex);
 
   std::vector<ftxui::Element> info_parts;
 
   if (is_search) {
-    info_parts.push_back(
-        ftxui::text("Target: " + std::to_string(target)) | ftxui::bold |
-        ftxui::color(ftxui::Color::Cyan));
+    info_parts.push_back(ftxui::text("Target: " + std::to_string(target)) |
+                         ftxui::bold | ftxui::color(ftxui::Color::Cyan));
     info_parts.push_back(ftxui::text("  "));
   }
 
   if (snap.low >= 0 && snap.high >= 0) {
-    info_parts.push_back(
-        ftxui::text("Window: [" + std::to_string(snap.low) + ", " +
-                    std::to_string(snap.high) + ")") |
-        ftxui::dim);
+    info_parts.push_back(ftxui::text("Window: [" + std::to_string(snap.low) +
+                                     ", " + std::to_string(snap.high) + ")") |
+                         ftxui::dim);
     info_parts.push_back(ftxui::text("  "));
   }
 
   if (snap.sorted_boundary >= 0 &&
       snap.sorted_boundary < static_cast<int>(snap.data.size())) {
     info_parts.push_back(
-        ftxui::text("Sorted: [" + std::to_string(snap.sorted_boundary) +
-                    ".." + std::to_string(snap.data.size() - 1) + "]") |
+        ftxui::text("Sorted: [" + std::to_string(snap.sorted_boundary) + ".." +
+                    std::to_string(snap.data.size() - 1) + "]") |
         ftxui::color(colors::kSorted));
     info_parts.push_back(ftxui::text("  "));
   }

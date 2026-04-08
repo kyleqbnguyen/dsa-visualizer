@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "ftxui/dom/elements.hpp"
 #include "ftxui/screen/color.hpp"
+
+#include <string>
+#include <vector>
 
 namespace viz {
 
@@ -25,16 +25,14 @@ struct CodePanel {
     std::vector<ftxui::Element> rows;
 
     for (int idx = 0; idx < static_cast<int>(lines.size()); ++idx) {
-      auto line_num =
-          ftxui::text(std::to_string(idx + 1) + " ") | ftxui::dim;
+      auto line_num = ftxui::text(std::to_string(idx + 1) + " ") | ftxui::dim;
       auto line_text = ftxui::text(lines[idx]);
 
       ftxui::Element row;
       if (idx == current_line) {
         row = ftxui::hbox({
             line_num | ftxui::bold | ftxui::color(ftxui::Color::Yellow),
-            line_text | ftxui::bold |
-                ftxui::bgcolor(ftxui::Color::GrayDark) |
+            line_text | ftxui::bold | ftxui::bgcolor(ftxui::Color::GrayDark) |
                 ftxui::color(ftxui::Color::Yellow),
         });
       } else {
@@ -158,8 +156,8 @@ inline auto two_crystal_balls_code() -> CodePanel {
   };
 }
 
-inline auto two_crystal_balls_line(bool jump_phase, bool found,
-                                   bool finished) -> int {
+inline auto two_crystal_balls_line(bool jump_phase, bool found, bool finished)
+    -> int {
   if (finished)
     return 9;
   if (found)

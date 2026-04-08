@@ -1,18 +1,17 @@
 #pragma once
 
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/event.hpp"
+#include "ftxui/dom/elements.hpp"
+#include "list_snapshot.h"
+#include "test_cases.h"
+
 #include <algorithm>
 #include <charconv>
 #include <functional>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "ftxui/component/component.hpp"
-#include "ftxui/component/event.hpp"
-#include "ftxui/dom/elements.hpp"
-
-#include "list_snapshot.h"
-#include "test_cases.h"
 
 namespace viz {
 
@@ -49,13 +48,13 @@ struct ListConfigPanel {
 
   std::string validation_msg;
 
-  std::function<void(const ListConfigResult &)> on_apply;
+  std::function<void(const ListConfigResult&)> on_apply;
   std::function<void()> on_close;
 
   ftxui::Component component;
 
-  void init(const std::string &algo,
-            std::function<void(const ListConfigResult &)> apply_cb,
+  void init(const std::string& algo,
+            std::function<void(const ListConfigResult&)> apply_cb,
             std::function<void()> close_cb) {
     algo_name = algo;
     on_apply = std::move(apply_cb);
@@ -64,7 +63,7 @@ struct ListConfigPanel {
     test_cases = get_list_test_cases(algo_name);
     test_case_labels.clear();
     test_case_labels.push_back("(None)");
-    for (const auto &tc : test_cases) {
+    for (const auto& tc : test_cases) {
       test_case_labels.push_back(tc.label);
     }
     test_case_selected = 0;
@@ -89,22 +88,21 @@ struct ListConfigPanel {
     auto test_case_menu = Radiobox(&test_case_labels, &test_case_selected);
     auto tab_toggle = Toggle(&tab_labels, &tab_selected);
 
-    auto dataset_container = Container::Vertical(
-        {op_radio, value_input, index_input});
+    auto dataset_container =
+        Container::Vertical({op_radio, value_input, index_input});
     auto test_case_container = Container::Vertical({test_case_menu});
     auto tab_container =
         Container::Tab({dataset_container, test_case_container}, &tab_selected);
     auto inner = Container::Vertical({tab_toggle, tab_container});
 
     auto renderer = Renderer(inner, [=, this] {
-      bool show_value = (op_selected == 0 || op_selected == 1 ||
-                         op_selected == 2);
-      bool show_index = (op_selected == 2 || op_selected == 3 ||
-                         op_selected == 4);
+      bool show_value =
+          (op_selected == 0 || op_selected == 1 || op_selected == 2);
+      bool show_index =
+          (op_selected == 2 || op_selected == 3 || op_selected == 4);
 
       Elements content;
-      content.push_back(
-          text(" Configure: " + algo_name + " ") | bold | center);
+      content.push_back(text(" Configure: " + algo_name + " ") | bold | center);
       content.push_back(separator());
       content.push_back(tab_toggle->Render() | center);
       content.push_back(separator());
@@ -112,9 +110,10 @@ struct ListConfigPanel {
       if (tab_selected == 0) {
         Elements cols;
         cols.push_back(vbox({
-            text("Operation") | bold | underlined,
-            op_radio->Render(),
-        }) | flex);
+                           text("Operation") | bold | underlined,
+                           op_radio->Render(),
+                       }) |
+                       flex);
 
         Elements params;
         params.push_back(text("Parameters") | bold | underlined);
@@ -135,11 +134,10 @@ struct ListConfigPanel {
         if (test_case_selected > 0 &&
             test_case_selected <= static_cast<int>(test_cases.size())) {
           content.push_back(separator());
-          auto &tc = test_cases[test_case_selected - 1];
+          auto& tc = test_cases[test_case_selected - 1];
           content.push_back(text(tc.description) | dim);
           std::string preview;
-          for (int i = 0; i < static_cast<int>(tc.initial_values.size());
-               ++i) {
+          for (int i = 0; i < static_cast<int>(tc.initial_values.size()); ++i) {
             if (i > 0)
               preview += ", ";
             preview += std::to_string(tc.initial_values[i]);
@@ -184,7 +182,7 @@ struct ListConfigPanel {
     if (tab_selected == 1) {
       if (test_case_selected > 0 &&
           test_case_selected <= static_cast<int>(test_cases.size())) {
-        auto &tc = test_cases[test_case_selected - 1];
+        auto& tc = test_cases[test_case_selected - 1];
         result.config.initial_values = tc.initial_values;
         result.config.op = tc.op;
         result.config.value = tc.value;
@@ -204,8 +202,10 @@ struct ListConfigPanel {
                                      ListOp::kGet};
     result.config.op = ops[op_selected];
 
-    bool need_value = (op_selected == 0 || op_selected == 1 || op_selected == 2);
-    bool need_index = (op_selected == 2 || op_selected == 3 || op_selected == 4);
+    bool need_value =
+        (op_selected == 0 || op_selected == 1 || op_selected == 2);
+    bool need_index =
+        (op_selected == 2 || op_selected == 3 || op_selected == 4);
 
     if (need_value) {
       auto parsed = generators::parse_csv_ints(value_str);

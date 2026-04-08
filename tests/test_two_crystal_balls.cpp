@@ -1,8 +1,7 @@
-#include <vector>
+#include "two_crystal_balls.h"
 
 #include <gtest/gtest.h>
-
-#include "two_crystal_balls.h"
+#include <vector>
 
 TEST(TwoCrystalBalls, FindsMiddleBreak) {
   std::vector<int> breaks = {0, 0, 0, 0, 1, 1, 1, 1};

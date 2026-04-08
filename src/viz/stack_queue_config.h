@@ -1,16 +1,15 @@
 #pragma once
 
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/event.hpp"
+#include "ftxui/dom/elements.hpp"
+#include "list_snapshot.h"
+#include "test_cases.h"
+
 #include <charconv>
 #include <functional>
 #include <string>
 #include <vector>
-
-#include "ftxui/component/component.hpp"
-#include "ftxui/component/event.hpp"
-#include "ftxui/dom/elements.hpp"
-
-#include "list_snapshot.h"
-#include "test_cases.h"
 
 namespace viz {
 
@@ -43,13 +42,13 @@ struct StackQueueConfigPanel {
 
   std::string validation_msg;
 
-  std::function<void(const StackQueueConfigResult &)> on_apply;
+  std::function<void(const StackQueueConfigResult&)> on_apply;
   std::function<void()> on_close;
 
   ftxui::Component component;
 
   void init(bool stack,
-            std::function<void(const StackQueueConfigResult &)> apply_cb,
+            std::function<void(const StackQueueConfigResult&)> apply_cb,
             std::function<void()> close_cb) {
     is_stack = stack;
     on_apply = std::move(apply_cb);
@@ -65,7 +64,7 @@ struct StackQueueConfigPanel {
     test_cases = get_stack_queue_test_cases(is_stack);
     test_case_labels.clear();
     test_case_labels.push_back("(None)");
-    for (const auto &tc : test_cases) {
+    for (const auto& tc : test_cases) {
       test_case_labels.push_back(tc.label);
     }
     test_case_selected = 0;
@@ -96,7 +95,8 @@ struct StackQueueConfigPanel {
       // Push/Enqueue (index 0) shows value; Pop/Dequeue (index 1) does not
       bool show_value = (op_selected == 0);
 
-      std::string title = is_stack ? " Configure: Stack " : " Configure: Queue ";
+      std::string title =
+          is_stack ? " Configure: Stack " : " Configure: Queue ";
 
       Elements content;
       content.push_back(text(title) | bold | center);
@@ -107,9 +107,10 @@ struct StackQueueConfigPanel {
       if (tab_selected == 0) {
         Elements cols;
         cols.push_back(vbox({
-            text("Operation") | bold | underlined,
-            op_radio->Render(),
-        }) | flex);
+                           text("Operation") | bold | underlined,
+                           op_radio->Render(),
+                       }) |
+                       flex);
 
         Elements params;
         params.push_back(text("Parameters") | bold | underlined);
@@ -128,7 +129,7 @@ struct StackQueueConfigPanel {
         if (test_case_selected > 0 &&
             test_case_selected <= static_cast<int>(test_cases.size())) {
           content.push_back(separator());
-          auto &tc = test_cases[test_case_selected - 1];
+          auto& tc = test_cases[test_case_selected - 1];
           content.push_back(text(tc.description) | dim);
           std::string preview;
           for (int i = 0; i < static_cast<int>(tc.initial_values.size()); ++i) {
@@ -136,7 +137,8 @@ struct StackQueueConfigPanel {
               preview += ", ";
             preview += std::to_string(tc.initial_values[i]);
           }
-          std::string data_str = tc.initial_values.empty() ? "(empty)" : "[" + preview + "]";
+          std::string data_str =
+              tc.initial_values.empty() ? "(empty)" : "[" + preview + "]";
           content.push_back(text("Data: " + data_str) | dim);
         }
       }
@@ -177,7 +179,7 @@ struct StackQueueConfigPanel {
     if (tab_selected == 1) {
       if (test_case_selected > 0 &&
           test_case_selected <= static_cast<int>(test_cases.size())) {
-        auto &tc = test_cases[test_case_selected - 1];
+        auto& tc = test_cases[test_case_selected - 1];
         result.config.initial_values = tc.initial_values;
         result.config.op = tc.op;
         result.config.value = tc.value;
@@ -191,9 +193,9 @@ struct StackQueueConfigPanel {
     }
 
     // Dataset tab
-    result.config.op = is_stack
-        ? (op_selected == 0 ? ListOp::kPush : ListOp::kPop)
-        : (op_selected == 0 ? ListOp::kEnqueue : ListOp::kDequeue);
+    result.config.op =
+        is_stack ? (op_selected == 0 ? ListOp::kPush : ListOp::kPop)
+                 : (op_selected == 0 ? ListOp::kEnqueue : ListOp::kDequeue);
 
     if (op_selected == 0) {
       // Parse value

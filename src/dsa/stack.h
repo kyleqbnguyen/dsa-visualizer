@@ -6,8 +6,7 @@
 
 namespace dsa {
 
-template <typename T>
-class Stack {
+template <typename T> class Stack {
 public:
   Stack() = default;
 

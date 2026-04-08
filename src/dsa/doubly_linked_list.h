@@ -6,8 +6,8 @@ namespace dsa {
 
 template <typename T> struct DoublyNode {
   T val;
-  DoublyNode<T> *next = nullptr;
-  DoublyNode<T> *prev = nullptr;
+  DoublyNode<T>* next = nullptr;
+  DoublyNode<T>* prev = nullptr;
   explicit DoublyNode(T v) : val(v) {}
 };
 
@@ -16,16 +16,16 @@ public:
   DoublyLinkedList() = default;
 
   ~DoublyLinkedList() {
-    auto *curr = head_;
+    auto* curr = head_;
     while (curr) {
-      auto *tmp = curr;
+      auto* tmp = curr;
       curr = curr->next;
       delete tmp;
     }
   }
 
-  DoublyLinkedList(const DoublyLinkedList &) = delete;
-  DoublyLinkedList &operator=(const DoublyLinkedList &) = delete;
+  DoublyLinkedList(const DoublyLinkedList&) = delete;
+  DoublyLinkedList& operator=(const DoublyLinkedList&) = delete;
 
   void prepend(T val) {
     // TODO: implement
@@ -51,8 +51,8 @@ public:
   size_t length() const { return length_; }
 
 private:
-  DoublyNode<T> *head_ = nullptr;
-  DoublyNode<T> *tail_ = nullptr;
+  DoublyNode<T>* head_ = nullptr;
+  DoublyNode<T>* tail_ = nullptr;
   size_t length_ = 0;
 };
 

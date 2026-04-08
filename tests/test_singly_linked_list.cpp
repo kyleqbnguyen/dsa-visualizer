@@ -1,4 +1,5 @@
 #include "singly_linked_list.h"
+
 #include <gtest/gtest.h>
 
 TEST(SinglyPrepend, ToEmpty) {

@@ -1,5 +1,18 @@
 #pragma once
 
+#include "algo_recorder.h"
+#include "code_panel.h"
+#include "common.h"
+#include "config_overlay.h"
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/event.hpp"
+#include "ftxui/component/screen_interactive.hpp"
+#include "ftxui/dom/elements.hpp"
+#include "snapshot.h"
+#include "state_panel.h"
+#include "trace_panel.h"
+#include "viz_controller.h"
+
 #include <atomic>
 #include <chrono>
 #include <functional>
@@ -7,28 +20,13 @@
 #include <thread>
 #include <vector>
 
-#include "ftxui/component/component.hpp"
-#include "ftxui/component/event.hpp"
-#include "ftxui/component/screen_interactive.hpp"
-#include "ftxui/dom/elements.hpp"
-
-#include "algo_recorder.h"
-#include "code_panel.h"
-#include "common.h"
-#include "config_overlay.h"
-#include "snapshot.h"
-#include "state_panel.h"
-#include "trace_panel.h"
-#include "viz_controller.h"
-
 namespace viz {
 
-using RecorderFunc = std::function<AlgorithmRecording(
-    const std::vector<int> &data, int target)>;
+using RecorderFunc =
+    std::function<AlgorithmRecording(const std::vector<int>& data, int target)>;
 
-inline void run_visualizer(AlgorithmRecording recording,
-                           const CodePanel &code, bool is_search, int target,
-                           RecorderFunc re_record) {
+inline void run_visualizer(AlgorithmRecording recording, const CodePanel& code,
+                           bool is_search, int target, RecorderFunc re_record) {
   using namespace ftxui;
 
   if (recording.steps.empty())
@@ -47,7 +45,7 @@ inline void run_visualizer(AlgorithmRecording recording,
 
   ConfigPanel config_panel;
 
-  auto apply_config = [&](const ConfigResult &result) {
+  auto apply_config = [&](const ConfigResult& result) {
     target = result.target;
     recording = re_record(result.data, result.target);
     ctrl.total_steps.store(static_cast<int>(recording.steps.size()),
@@ -90,12 +88,10 @@ inline void run_visualizer(AlgorithmRecording recording,
 
   auto renderer = Renderer(main_container, [&]() -> Element {
     int step = ctrl.current_step.load(std::memory_order_relaxed);
-    step = std::clamp(step, 0,
-                      static_cast<int>(recording.steps.size()) - 1);
-    const auto &snap = recording.steps[step];
+    step = std::clamp(step, 0, static_cast<int>(recording.steps.size()) - 1);
+    const auto& snap = recording.steps[step];
 
-    auto viz_pane =
-        render_array(snap, recording.title, target, is_search);
+    auto viz_pane = render_array(snap, recording.title, target, is_search);
 
     Element left_pane;
     if (config_open) {
@@ -114,8 +110,7 @@ inline void run_visualizer(AlgorithmRecording recording,
     Elements right_panels;
 
     if (code_visible) {
-      right_panels.push_back(
-          code.render(snap.current_line, false) | flex_grow);
+      right_panels.push_back(code.render(snap.current_line, false) | flex_grow);
     } else {
       right_panels.push_back(code.render(snap.current_line, true));
     }
@@ -156,8 +151,7 @@ inline void run_visualizer(AlgorithmRecording recording,
         text(" Quit ") | dim,
         separator(),
         text(" " +
-             std::to_string(
-                 ctrl.speed_ms.load(std::memory_order_relaxed)) +
+             std::to_string(ctrl.speed_ms.load(std::memory_order_relaxed)) +
              "ms ") |
             dim,
     });
@@ -248,8 +242,7 @@ inline void run_visualizer(AlgorithmRecording recording,
     }
 
     if (event == Event::Character('c') || event == Event::Character('C')) {
-      ctrl.mode.store(VizController::Mode::PAUSED,
-                      std::memory_order_relaxed);
+      ctrl.mode.store(VizController::Mode::PAUSED, std::memory_order_relaxed);
       config_open = true;
       screen.Post(Event::Custom);
       return true;
@@ -269,7 +262,7 @@ inline void run_visualizer(AlgorithmRecording recording,
 inline void run_linear_search_viz(std::vector<int> input, int target) {
   auto code = linear_search_code();
 
-  auto recorder = [](const std::vector<int> &data,
+  auto recorder = [](const std::vector<int>& data,
                      int tgt) -> AlgorithmRecording {
     return record_linear_search(data, tgt);
   };
@@ -281,7 +274,7 @@ inline void run_linear_search_viz(std::vector<int> input, int target) {
 inline void run_binary_search_viz(std::vector<int> input, int target) {
   auto code = binary_search_code();
 
-  auto recorder = [](const std::vector<int> &data,
+  auto recorder = [](const std::vector<int>& data,
                      int tgt) -> AlgorithmRecording {
     return record_binary_search(data, tgt);
   };
@@ -293,7 +286,7 @@ inline void run_binary_search_viz(std::vector<int> input, int target) {
 inline void run_bubble_sort_viz(std::vector<int> input) {
   auto code = bubble_sort_code();
 
-  auto recorder = [](const std::vector<int> &data,
+  auto recorder = [](const std::vector<int>& data,
                      int /*tgt*/) -> AlgorithmRecording {
     return record_bubble_sort(data);
   };
@@ -305,7 +298,7 @@ inline void run_bubble_sort_viz(std::vector<int> input) {
 inline void run_two_crystal_balls_viz(std::vector<int> input) {
   auto code = two_crystal_balls_code();
 
-  auto recorder = [](const std::vector<int> &data,
+  auto recorder = [](const std::vector<int>& data,
                      int /*tgt*/) -> AlgorithmRecording {
     return record_two_crystal_balls(data);
   };
