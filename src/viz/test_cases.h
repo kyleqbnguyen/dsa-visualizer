@@ -1,9 +1,10 @@
 #pragma once
 
+#include "list_snapshot.h"
+#include "ring_buffer_snapshot.h"
+
 #include <string>
 #include <vector>
-
-#include "list_snapshot.h"
 
 namespace viz {
 
@@ -181,7 +182,7 @@ inline auto two_crystal_balls_test_cases() -> std::vector<TestCase> {
   };
 }
 
-inline auto get_test_cases(const std::string &algo_name)
+inline auto get_test_cases(const std::string& algo_name)
     -> std::vector<TestCase> {
   if (algo_name == "linear_search")
     return linear_search_test_cases();
@@ -332,7 +333,7 @@ inline auto doubly_linked_list_test_cases() -> std::vector<ListTestCase> {
   };
 }
 
-inline auto get_list_test_cases(const std::string &algo_name)
+inline auto get_list_test_cases(const std::string& algo_name)
     -> std::vector<ListTestCase> {
   if (algo_name == "singly_linked_list")
     return singly_linked_list_test_cases();
@@ -418,6 +419,60 @@ inline auto queue_test_cases() -> std::vector<StackQueueTestCase> {
 inline auto get_stack_queue_test_cases(bool is_stack)
     -> std::vector<StackQueueTestCase> {
   return is_stack ? stack_test_cases() : queue_test_cases();
+}
+
+struct RingBufferTestCase {
+  std::string label;
+  std::string description;
+  int capacity = 8;
+  std::vector<int> initial_values;
+  RingBufferOp op;
+  int value = 0;
+};
+
+inline auto ring_buffer_test_cases() -> std::vector<RingBufferTestCase> {
+  return {
+      {
+          .label = "Enqueue onto non-empty",
+          .description = "Enqueue 10 into cap=8 buffer with [5, 3, 8]",
+          .capacity = 8,
+          .initial_values = {5, 3, 8},
+          .op = RingBufferOp::kEnqueue,
+          .value = 10,
+      },
+      {
+          .label = "Enqueue onto empty",
+          .description = "Enqueue 42 into empty cap=8 buffer",
+          .capacity = 8,
+          .initial_values = {},
+          .op = RingBufferOp::kEnqueue,
+          .value = 42,
+      },
+      {
+          .label = "Enqueue onto full (error)",
+          .description = "Enqueue into full cap=4 buffer — shows error",
+          .capacity = 4,
+          .initial_values = {1, 2, 3, 4},
+          .op = RingBufferOp::kEnqueue,
+          .value = 99,
+      },
+      {
+          .label = "Dequeue from non-empty",
+          .description = "Dequeue head from cap=8 buffer with [5, 3, 8, 1, 6]",
+          .capacity = 8,
+          .initial_values = {5, 3, 8, 1, 6},
+          .op = RingBufferOp::kDequeue,
+          .value = 0,
+      },
+      {
+          .label = "Dequeue from empty (error)",
+          .description = "Dequeue from empty buffer — shows error",
+          .capacity = 8,
+          .initial_values = {},
+          .op = RingBufferOp::kDequeue,
+          .value = 0,
+      },
+  };
 }
 
 } // namespace viz

@@ -1,16 +1,16 @@
-#include <algorithm>
-#include <string>
-#include <vector>
-
+#include "array_viz.h"
+#include "config_overlay.h"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/event.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
-
-#include "array_viz.h"
-#include "config_overlay.h"
 #include "list_viz.h"
+#include "ring_buffer_viz.h"
 #include "stack_queue_viz.h"
+
+#include <algorithm>
+#include <string>
+#include <vector>
 
 namespace {
 
@@ -28,22 +28,32 @@ constexpr int kSinglyLinkedList = 4;
 constexpr int kDoublyLinkedList = 5;
 constexpr int kStack = 6;
 constexpr int kQueue = 7;
+constexpr int kRingBuffer = 8;
 
 auto build_menu_entries() -> std::vector<MenuEntry> {
   return {
       {.label = "Arrays", .is_category = true},
-      {.label = "  Linear Search", .is_category = false, .algo_id = kLinearSearch},
-      {.label = "  Binary Search", .is_category = false, .algo_id = kBinarySearch},
+      {.label = "  Linear Search",
+       .is_category = false,
+       .algo_id = kLinearSearch},
+      {.label = "  Binary Search",
+       .is_category = false,
+       .algo_id = kBinarySearch},
       {.label = "  Bubble Sort", .is_category = false, .algo_id = kBubbleSort},
       {.label = "  Two Crystal Balls",
        .is_category = false,
        .algo_id = kTwoCrystalBalls},
       {.label = "Linked Lists", .is_category = true},
-      {.label = "  Singly Linked List", .is_category = false, .algo_id = kSinglyLinkedList},
-      {.label = "  Doubly Linked List", .is_category = false, .algo_id = kDoublyLinkedList},
+      {.label = "  Singly Linked List",
+       .is_category = false,
+       .algo_id = kSinglyLinkedList},
+      {.label = "  Doubly Linked List",
+       .is_category = false,
+       .algo_id = kDoublyLinkedList},
       {.label = "Stacks & Queues", .is_category = true},
       {.label = "  Stack", .is_category = false, .algo_id = kStack},
       {.label = "  Queue", .is_category = false, .algo_id = kQueue},
+      {.label = "  Ring Buffer", .is_category = false, .algo_id = kRingBuffer},
       {.label = "Trees", .is_category = true},
       {.label = "Graphs", .is_category = true},
   };
@@ -73,14 +83,12 @@ int show_menu() {
   auto renderer = Renderer([&] {
     std::vector<Element> menu_rows;
     for (int i = 0; i < static_cast<int>(entries.size()); ++i) {
-      const auto &entry = entries[i];
+      const auto& entry = entries[i];
       if (entry.is_category) {
-        menu_rows.push_back(
-            text(entry.label) | bold | color(Color::Cyan));
+        menu_rows.push_back(text(entry.label) | bold | color(Color::Cyan));
       } else {
         if (i == selected) {
-          menu_rows.push_back(
-              text("> " + entry.label) | bold | inverted);
+          menu_rows.push_back(text("> " + entry.label) | bold | inverted);
         } else {
           menu_rows.push_back(text("  " + entry.label));
         }
@@ -89,8 +97,7 @@ int show_menu() {
 
     return vbox({
         text("DSA Visualizer") | bold | center,
-        text("ThePrimeagen's Algorithm Course - C++20 Edition") | dim |
-            center,
+        text("ThePrimeagen's Algorithm Course - C++20 Edition") | dim | center,
         separator(),
         hbox({
             vbox({
@@ -196,6 +203,9 @@ void run_selected(int algo_id) {
     break;
   case kQueue:
     viz::run_queue_viz();
+    break;
+  case kRingBuffer:
+    viz::run_ring_buffer_viz();
     break;
   default:
     break;
