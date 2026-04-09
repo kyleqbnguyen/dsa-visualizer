@@ -33,6 +33,26 @@ TEST(VizRecordings, BubbleSortRecordingEndsSorted) {
   EXPECT_EQ(rec.steps.back().sorted_boundary, 0);
 }
 
+TEST(VizRecordings, QuickSortRecordingEndsSorted) {
+  std::vector<int> data = {5, 1, 4, 2, 8};
+  auto rec = viz::record_quick_sort(data);
+
+  ASSERT_FALSE(rec.steps.empty());
+  EXPECT_EQ(rec.algorithm_name, "quick_sort");
+  EXPECT_TRUE(std::is_sorted(rec.steps.back().data.begin(),
+                             rec.steps.back().data.end()));
+  EXPECT_EQ(rec.steps.back().sorted_boundary, 0);
+}
+
+TEST(VizRecordings, QuickSortRecordingAlreadySorted) {
+  std::vector<int> data = {1, 2, 3, 4, 5};
+  auto rec = viz::record_quick_sort(data);
+
+  ASSERT_FALSE(rec.steps.empty());
+  EXPECT_TRUE(std::is_sorted(rec.steps.back().data.begin(),
+                             rec.steps.back().data.end()));
+}
+
 TEST(VizRecordings, TwoCrystalBallsRecordingHasTerminalResult) {
   std::vector<int> breaks = {0, 0, 0, 0, 1, 1, 1, 1};
   auto rec = viz::record_two_crystal_balls(breaks);

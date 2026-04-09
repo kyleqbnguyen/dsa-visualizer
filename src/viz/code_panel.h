@@ -167,4 +167,57 @@ inline auto two_crystal_balls_line(bool jump_phase, bool found, bool finished)
   return 6;
 }
 
+inline auto quick_sort_code() -> CodePanel {
+  return {
+      .title = "quick_sort.h",
+      .lines =
+          {
+              "void quick_sort(arr, lo, hi) {",
+              "    if (lo >= hi) return;",
+              "    int pivot = arr[hi];",
+              "    int i = lo - 1;",
+              "    for (int j = lo; j < hi; ++j) {",
+              "        if (arr[j] <= pivot) {",
+              "            ++i;",
+              "            swap(arr[i], arr[j]);",
+              "        }",
+              "    }",
+              "    swap(arr[i+1], arr[hi]);",
+              "    quick_sort(arr, lo, i);",
+              "    quick_sort(arr, i+2, hi);",
+              "}",
+          },
+  };
+}
+
+enum class QSState {
+  kInit,
+  kBase,
+  kPivot,
+  kCompare,
+  kSwap,
+  kPlace,
+  kDone,
+};
+
+inline auto quick_sort_line(QSState state) -> int {
+  switch (state) {
+  case QSState::kInit:
+    return 0;
+  case QSState::kBase:
+    return 1;
+  case QSState::kPivot:
+    return 2;
+  case QSState::kCompare:
+    return 5;
+  case QSState::kSwap:
+    return 7;
+  case QSState::kPlace:
+    return 10;
+  case QSState::kDone:
+    return 13;
+  }
+  return 0;
+}
+
 } // namespace viz

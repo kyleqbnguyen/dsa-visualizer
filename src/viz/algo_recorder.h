@@ -414,4 +414,178 @@ inline auto record_two_crystal_balls(const std::vector<int>& input)
   return rec;
 }
 
+inline auto record_quick_sort(const std::vector<int>& input)
+    -> AlgorithmRecording {
+  AlgorithmRecording rec;
+  rec.title = "Quick Sort";
+  rec.algorithm_name = "quick_sort";
+
+  auto data = input;
+  int total_swaps = 0;
+
+  {
+    StepSnapshot init;
+    init.data = data;
+    init.status_text = "Ready to start.";
+    init.current_line = quick_sort_line(QSState::kInit);
+    init.trace_entry =
+        "begin quick_sort(n=" + std::to_string(data.size()) + ")";
+    init.variables = {{"n", std::to_string(data.size())}};
+    rec.steps.push_back(std::move(init));
+  }
+
+  if (!data.empty()) {
+    std::vector<std::pair<int, int>> stack;
+    stack.push_back({0, static_cast<int>(data.size()) - 1});
+
+    while (!stack.empty()) {
+      auto [lo, hi] = stack.back();
+      stack.pop_back();
+
+      if (lo >= hi) {
+        StepSnapshot snap;
+        snap.data = data;
+        snap.low = lo;
+        snap.high = hi + 1;
+        snap.current_line = quick_sort_line(QSState::kBase);
+        snap.status_text = "Base case: subarray size <= 1, nothing to sort";
+        snap.trace_entry = "quick_sort(" + std::to_string(lo) + ", " +
+                           std::to_string(hi) + ") -> base case, return";
+        snap.variables = {
+            {"lo", std::to_string(lo)},
+            {"hi", std::to_string(hi)},
+        };
+        rec.steps.push_back(std::move(snap));
+        continue;
+      }
+
+      int pivot_val = data[hi];
+      int pivot_idx = hi;
+
+      {
+        StepSnapshot snap;
+        snap.data = data;
+        snap.low = lo;
+        snap.high = hi + 1;
+        snap.pivot_index = pivot_idx;
+        snap.current_line = quick_sort_line(QSState::kPivot);
+        snap.status_text = "Partition [" + std::to_string(lo) + ".." +
+                           std::to_string(hi) + "]  pivot=arr[" +
+                           std::to_string(hi) +
+                           "]=" + std::to_string(pivot_val);
+        snap.trace_entry = "partition(lo=" + std::to_string(lo) +
+                           ", hi=" + std::to_string(hi) +
+                           ")  pivot=" + std::to_string(pivot_val);
+        snap.variables = {
+            {"lo", std::to_string(lo)},
+            {"hi", std::to_string(hi)},
+            {"pivot", std::to_string(pivot_val)},
+            {"i", std::to_string(lo - 1)},
+        };
+        rec.steps.push_back(std::move(snap));
+      }
+
+      int i = lo - 1;
+
+      for (int j = lo; j < hi; ++j) {
+        bool will_swap = data[j] <= pivot_val;
+
+        StepSnapshot snap;
+        snap.data = data;
+        snap.low = lo;
+        snap.high = hi + 1;
+        snap.highlight_a = j;
+        snap.pivot_index = pivot_idx;
+
+        snap.variables = {
+            {"lo", std::to_string(lo)},    {"hi", std::to_string(hi)},
+            {"pivot", std::to_string(pivot_val)}, {"i", std::to_string(i)},
+            {"j", std::to_string(j)},      {"arr[j]", std::to_string(data[j])},
+        };
+
+        if (will_swap) {
+          ++i;
+          snap.current_line = quick_sort_line(QSState::kSwap);
+          snap.status_text = "arr[" + std::to_string(j) +
+                             "]=" + std::to_string(data[j]) +
+                             " <= pivot=" + std::to_string(pivot_val) +
+                             "  swap with i=" + std::to_string(i);
+          snap.trace_entry = "swap(arr[" + std::to_string(i) +
+                             "]=" + std::to_string(data[i]) + ", arr[" +
+                             std::to_string(j) +
+                             "]=" + std::to_string(data[j]) + ")";
+          std::swap(data[i], data[j]);
+          if (pivot_idx == i)
+            pivot_idx = j;
+          ++total_swaps;
+          snap.data = data;
+          snap.variables[3].second = std::to_string(i);
+          snap.pivot_index = pivot_idx;
+        } else {
+          snap.current_line = quick_sort_line(QSState::kCompare);
+          snap.status_text = "arr[" + std::to_string(j) +
+                             "]=" + std::to_string(data[j]) +
+                             " > pivot=" + std::to_string(pivot_val) +
+                             "  no swap";
+          snap.trace_entry = "compare arr[" + std::to_string(j) +
+                             "]=" + std::to_string(data[j]) +
+                             " > pivot -> skip";
+        }
+
+        rec.steps.push_back(std::move(snap));
+      }
+
+      int pivot_final = i + 1;
+
+      {
+        StepSnapshot snap;
+        snap.data = data;
+        snap.low = lo;
+        snap.high = hi + 1;
+        snap.highlight_a = pivot_final;
+        snap.pivot_index = pivot_idx;
+        snap.current_line = quick_sort_line(QSState::kPlace);
+        snap.status_text = "Place pivot " + std::to_string(pivot_val) +
+                           " at index " + std::to_string(pivot_final);
+        snap.trace_entry = "swap(arr[" + std::to_string(pivot_final) +
+                           "]=" + std::to_string(data[pivot_final]) + ", arr[" +
+                           std::to_string(pivot_idx) +
+                           "]=" + std::to_string(data[pivot_idx]) + ")";
+        snap.variables = {
+            {"lo", std::to_string(lo)},
+            {"hi", std::to_string(hi)},
+            {"pivot", std::to_string(pivot_val)},
+            {"pivot_pos", std::to_string(pivot_final)},
+        };
+        std::swap(data[pivot_final], data[pivot_idx]);
+        if (pivot_final != pivot_idx)
+          ++total_swaps;
+        snap.data = data;
+        snap.found_index = pivot_final;
+        rec.steps.push_back(std::move(snap));
+      }
+
+      if (pivot_final + 1 < hi)
+        stack.push_back({pivot_final + 1, hi});
+      if (lo < pivot_final - 1)
+        stack.push_back({lo, pivot_final - 1});
+    }
+  }
+
+  {
+    StepSnapshot final_snap;
+    final_snap.data = data;
+    final_snap.sorted_boundary = 0;
+    final_snap.current_line = quick_sort_line(QSState::kDone);
+    final_snap.status_text = "Quick Sort complete! (" +
+                             std::to_string(total_swaps) + " total swaps)";
+    final_snap.trace_entry =
+        "done - sorted with " + std::to_string(total_swaps) + " swaps";
+    final_snap.variables = {{"total_swaps", std::to_string(total_swaps)}};
+    rec.steps.push_back(std::move(final_snap));
+  }
+
+  return rec;
+}
+
 } // namespace viz

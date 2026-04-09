@@ -63,6 +63,8 @@ inline auto render_array(const StepSnapshot& snap,
 
     if (i == snap.found_index) {
       bar_color = colors::kFound;
+    } else if (i == snap.pivot_index) {
+      bar_color = colors::kPivot;
     } else if (i == snap.highlight_a || i == snap.highlight_b) {
       bar_color = colors::kActive;
     } else if (snap.low >= 0 && snap.high >= 0) {

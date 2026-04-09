@@ -16,6 +16,7 @@ struct StepSnapshot {
   int low = -1;
   int high = -1;
 
+  int pivot_index = -1;
   int sorted_boundary = -1;
 
   int current_line = -1;
