@@ -4,9 +4,15 @@
 #include "ftxui/component/event.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
+#include "graph_viz.h"
+#include "heap_viz.h"
 #include "list_viz.h"
+#include "lru_viz.h"
+#include "maze_viz.h"
 #include "ring_buffer_viz.h"
 #include "stack_queue_viz.h"
+#include "tree_viz.h"
+#include "trie_viz.h"
 
 #include <algorithm>
 #include <string>
@@ -29,6 +35,14 @@ constexpr int kDoublyLinkedList = 5;
 constexpr int kStack = 6;
 constexpr int kQueue = 7;
 constexpr int kRingBuffer = 8;
+constexpr int kQuickSort = 9;
+constexpr int kHeapViz = 10;
+constexpr int kTreeTraversalViz = 11;
+constexpr int kBstViz = 12;
+constexpr int kMazeSolverViz = 13;
+constexpr int kTrieViz = 14;
+constexpr int kGraphViz = 15;
+constexpr int kLruCacheViz = 16;
 
 auto build_menu_entries() -> std::vector<MenuEntry> {
   return {
@@ -40,6 +54,7 @@ auto build_menu_entries() -> std::vector<MenuEntry> {
        .is_category = false,
        .algo_id = kBinarySearch},
       {.label = "  Bubble Sort", .is_category = false, .algo_id = kBubbleSort},
+      {.label = "  Quick Sort", .is_category = false, .algo_id = kQuickSort},
       {.label = "  Two Crystal Balls",
        .is_category = false,
        .algo_id = kTwoCrystalBalls},
@@ -55,7 +70,20 @@ auto build_menu_entries() -> std::vector<MenuEntry> {
       {.label = "  Queue", .is_category = false, .algo_id = kQueue},
       {.label = "  Ring Buffer", .is_category = false, .algo_id = kRingBuffer},
       {.label = "Trees", .is_category = true},
+      {.label = "  Heap (Min)", .is_category = false, .algo_id = kHeapViz},
+      {.label = "  Tree Traversals",
+       .is_category = false,
+       .algo_id = kTreeTraversalViz},
+      {.label = "  BST Operations", .is_category = false, .algo_id = kBstViz},
+      {.label = "  Trie", .is_category = false, .algo_id = kTrieViz},
       {.label = "Graphs", .is_category = true},
+      {.label = "  Graph (BFS/DFS/Dijkstra)",
+       .is_category = false,
+       .algo_id = kGraphViz},
+      {.label = "Recursion", .is_category = true},
+      {.label = "  Maze Solver", .is_category = false, .algo_id = kMazeSolverViz},
+      {.label = "Maps", .is_category = true},
+      {.label = "  LRU Cache", .is_category = false, .algo_id = kLruCacheViz},
   };
 }
 
@@ -189,6 +217,9 @@ void run_selected(int algo_id) {
   case kBubbleSort:
     viz::run_bubble_sort_viz(data);
     break;
+  case kQuickSort:
+    viz::run_quick_sort_viz(data);
+    break;
   case kTwoCrystalBalls:
     viz::run_two_crystal_balls_viz(data);
     break;
@@ -206,6 +237,27 @@ void run_selected(int algo_id) {
     break;
   case kRingBuffer:
     viz::run_ring_buffer_viz();
+    break;
+  case kHeapViz:
+    viz::run_heap_viz();
+    break;
+  case kTreeTraversalViz:
+    viz::run_tree_traversal_viz();
+    break;
+  case kBstViz:
+    viz::run_bst_viz();
+    break;
+  case kMazeSolverViz:
+    viz::run_maze_viz();
+    break;
+  case kTrieViz:
+    viz::run_trie_viz();
+    break;
+  case kGraphViz:
+    viz::run_graph_viz();
+    break;
+  case kLruCacheViz:
+    viz::run_lru_viz();
     break;
   default:
     break;

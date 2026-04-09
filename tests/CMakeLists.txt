@@ -2,7 +2,13 @@ include(GoogleTest)
 
 add_executable(dsa_tests test_viz_recordings.cpp test_list_viz_recordings.cpp
                          test_stack_queue_viz_recordings.cpp
-                         test_ring_buffer_viz_recordings.cpp)
+                         test_ring_buffer_viz_recordings.cpp
+                         test_heap_viz_recordings.cpp
+                         test_tree_viz_recordings.cpp
+                         test_maze_viz_recordings.cpp
+                         test_lru_viz_recordings.cpp
+                         test_graph_viz_recordings.cpp
+                         test_trie_viz_recordings.cpp)
 target_link_libraries(dsa_tests PRIVATE viz GTest::gtest_main)
 gtest_discover_tests(dsa_tests)
 
